@@ -105,6 +105,66 @@ ADMIN_PASSWORD='你的强密码' node client.js
 - 本机访问：`http://localhost:3000`
 - 局域网访问：`http://<你的IP>:3000`
 
+## Docker 部署
+
+项目已提供以下文件：
+- `Dockerfile`
+- `docker-compose.yml`
+- `.dockerignore`
+
+### 使用 Docker Compose（推荐）
+
+1. 进入项目目录
+
+```bash
+cd /path/to/qq-farm-bot-ui
+```
+
+2. 构建并启动
+
+```bash
+docker compose up -d --build
+```
+
+3. 访问面板
+
+- `http://localhost:3000`
+
+4. 查看日志
+
+```bash
+docker compose logs -f
+```
+
+5. 停止并移除容器
+
+```bash
+docker compose down
+```
+
+### 数据持久化
+
+`docker-compose.yml` 已将数据目录映射为：
+- 宿主机：`./data`
+- 容器内：`/app/data`
+
+配置与账号数据会保存在 `./data` 下（如 `store.json`、`accounts.json`）。
+
+### 管理密码
+
+在 `docker-compose.yml` 中通过环境变量设置：
+
+```yaml
+environment:
+  - ADMIN_PASSWORD=你的强密码
+```
+
+修改后重新启动：
+
+```bash
+docker compose up -d
+```
+
 ## 发布为免安装版本（Windows/Linux/macOS）
 
 ### 构建环境（开发者机器）

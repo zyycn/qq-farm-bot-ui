@@ -5,8 +5,11 @@ let qrMode = 'add';
 let currentQRCode = '';
 let currentLoginUrl = '';
 let qrCheckInterval = null;
-let qrRequestSeq = 0;
-let activeQrRequest = 0;
+
+function resetQrState() {
+    currentQRCode = '';
+    currentLoginUrl = '';
+}
 
 function isMobileByUA() {
     const ua = navigator.userAgent || '';
@@ -75,8 +78,6 @@ function setQrMode(mode, acc) {
 }
 
 async function generateQRCode() {
-    const reqId = ++qrRequestSeq;
-    activeQrRequest = reqId;
     const btn = $('btn-qr-generate');
     if (btn) btn.disabled = true;
     const status = $('qr-status');
@@ -84,9 +85,6 @@ async function generateQRCode() {
         status.textContent = '正在生成二维码...';
         status.style.color = 'var(--sub)';
     }
-    stopQRCheck();
-    currentQRCode = '';
-    currentLoginUrl = '';
 
     try {
         const result = await fetch('/api/qr/create', {
@@ -94,7 +92,6 @@ async function generateQRCode() {
             headers: { 'Content-Type': 'application/json' }
         }).then(r => r.json());
 
-        if (reqId !== activeQrRequest) return;
         if (result.ok && result.data) {
             currentQRCode = result.data.code;
             currentLoginUrl = result.data.url || result.data.loginUrl || '';
@@ -112,45 +109,45 @@ async function generateQRCode() {
             alert('生成二维码失败: ' + (result.error || '未知错误'));
         }
     } catch (e) {
-        if (reqId !== activeQrRequest) return;
         alert('生成二维码出错: ' + e.message);
     } finally {
-        if (reqId === activeQrRequest && btn) btn.disabled = false;
+        if (btn) btn.disabled = false;
     }
 }
 
 async function openQRCodeLoginUrl() {
-    let targetUrl = currentLoginUrl;
-    if (!targetUrl) {
+    if (qrMode === 'refresh') {
+        resetQrState();
+    }
+    if (!currentLoginUrl) {
         const status = $('qr-status');
         if (status) {
             status.textContent = '正在获取扫码链接...';
             status.style.color = 'var(--sub)';
         }
         await generateQRCode();
-        targetUrl = currentLoginUrl;
     }
-    if (!targetUrl) {
+    if (!currentLoginUrl) {
         alert('未获取到扫码链接，请稍后重试');
         return;
     }
 
     const isMobile = isMobileByUA();
     if (!isMobile) {
-        window.location.href = targetUrl;
+        window.location.href = currentLoginUrl;
         return;
     }
 
     // 手机端优先尝试通过 QQ deep link 唤起 QQ 打开目标链接
     const b64 = (typeof btoa === 'function')
-        ? btoa(unescape(encodeURIComponent(targetUrl)))
+        ? btoa(unescape(encodeURIComponent(currentLoginUrl)))
         : '';
     const qqDeepLink = b64
         ? `mqqapi://forward/url?url_prefix=${encodeURIComponent(b64)}&version=1&src_type=web`
         : '';
 
     if (!qqDeepLink) {
-        window.location.href = targetUrl;
+        window.location.href = currentLoginUrl;
         return;
     }
 
@@ -278,8 +275,7 @@ $('btn-add-acc-modal').addEventListener('click', () => {
     $('acc-code').value = '';
     $('acc-name-qr').value = '';
     $('acc-platform').value = 'qq';
-    currentQRCode = '';
-    currentLoginUrl = '';
+    resetQrState();
     syncQrOpenButtonVisibility();
     switchTab('qrcode');
     stopQRCheck();
@@ -319,8 +315,7 @@ window.editAccount = (id) => {
     $('acc-name').value = acc.name;
     $('acc-code').value = acc.code;
     $('acc-platform').value = acc.platform;
-    currentQRCode = '';
-    currentLoginUrl = '';
+    resetQrState();
     switchTab('manual');
     stopQRCheck();
     modal.querySelector('h3').textContent = '编辑账号';
@@ -333,8 +328,7 @@ window.refreshAccountCode = (id) => {
     editingAccountId = id;
     setQrMode('refresh', acc);
     $('acc-code').value = '';
-    currentQRCode = '';
-    currentLoginUrl = '';
+    resetQrState();
     syncQrOpenButtonVisibility();
     switchTab('qrcode');
     stopQRCheck();

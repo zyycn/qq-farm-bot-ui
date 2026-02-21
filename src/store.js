@@ -8,6 +8,13 @@ const { getDataFile, ensureDataDir } = require('./runtime-paths');
 const STORE_FILE = getDataFile('store.json');
 const ACCOUNTS_FILE = getDataFile('accounts.json');
 const ALLOWED_PLANTING_STRATEGIES = ['preferred', 'level', 'max_exp', 'max_fert_exp', 'max_profit', 'max_fert_profit'];
+const DEFAULT_OFFLINE_REMINDER = {
+    endpoint: 'http://www.ggsuper.com.cn/push/api/v1/sendMsg3_New.php',
+    token: '',
+    title: '账号下线提醒',
+    msg: '账号下线',
+    offlineDeleteSec: 120,
+};
 
 // ============ 全局配置 ============
 const DEFAULT_ACCOUNT_CONFIG = {
@@ -53,8 +60,36 @@ let globalConfig = {
     ui: {
         theme: 'dark',
     },
+    offlineReminder: { ...DEFAULT_OFFLINE_REMINDER },
     adminPasswordHash: '',
 };
+
+function normalizeOfflineReminder(input) {
+    const src = (input && typeof input === 'object') ? input : {};
+    let offlineDeleteSec = parseInt(src.offlineDeleteSec, 10);
+    if (!Number.isFinite(offlineDeleteSec) || offlineDeleteSec < 1) {
+        offlineDeleteSec = DEFAULT_OFFLINE_REMINDER.offlineDeleteSec;
+    }
+    const endpoint = (src.endpoint !== undefined && src.endpoint !== null)
+        ? String(src.endpoint).trim()
+        : DEFAULT_OFFLINE_REMINDER.endpoint;
+    const token = (src.token !== undefined && src.token !== null)
+        ? String(src.token).trim()
+        : DEFAULT_OFFLINE_REMINDER.token;
+    const title = (src.title !== undefined && src.title !== null)
+        ? String(src.title).trim()
+        : DEFAULT_OFFLINE_REMINDER.title;
+    const msg = (src.msg !== undefined && src.msg !== null)
+        ? String(src.msg).trim()
+        : DEFAULT_OFFLINE_REMINDER.msg;
+    return {
+        endpoint,
+        token,
+        title,
+        msg,
+        offlineDeleteSec,
+    };
+}
 
 function cloneAccountConfig(base = DEFAULT_ACCOUNT_CONFIG) {
     return {
@@ -177,6 +212,7 @@ function loadGlobalConfig() {
             globalConfig.ui = { ...globalConfig.ui, ...(data.ui || {}) };
             const theme = String(globalConfig.ui.theme || '').toLowerCase();
             globalConfig.ui.theme = theme === 'light' ? 'light' : 'dark';
+            globalConfig.offlineReminder = normalizeOfflineReminder(data.offlineReminder);
             if (typeof data.adminPasswordHash === 'string') {
                 globalConfig.adminPasswordHash = data.adminPasswordHash;
             }
@@ -363,6 +399,16 @@ function setUITheme(theme) {
     return applyConfigSnapshot({ ui: { theme: next } });
 }
 
+function getOfflineReminder() {
+    return normalizeOfflineReminder(globalConfig.offlineReminder);
+}
+
+function setOfflineReminder(cfg) {
+    globalConfig.offlineReminder = normalizeOfflineReminder(cfg);
+    saveGlobalConfig();
+    return getOfflineReminder();
+}
+
 // ============ 账号管理 ============
 function loadAccounts() {
     ensureDataDir();
@@ -445,6 +491,8 @@ module.exports = {
     setFriendQuietHours,
     getUI,
     setUITheme,
+    getOfflineReminder,
+    setOfflineReminder,
     getAccounts,
     addOrUpdateAccount,
     deleteAccount,

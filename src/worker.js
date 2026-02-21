@@ -3,7 +3,7 @@
  */
 const { CONFIG } = require('./config');
 const { loadProto } = require('./proto');
-const { connect, reconnect, cleanup, getWs, getUserState, networkEvents } = require('./network');
+const { connect, cleanup, getWs, getUserState, networkEvents } = require('./network');
 const { checkFarm, startFarmCheckLoop, stopFarmCheckLoop, refreshFarmCheckLoop, getLandsDetail, getAvailableSeeds, runFarmOperation } = require('./farm');
 const { checkFriends, startFriendCheckLoop, stopFriendCheckLoop, refreshFriendCheckLoop, getFriendsList, getFriendLandsDetail, doFriendOperation, getOperationLimits } = require('./friend');
 const { initTaskSystem, cleanupTaskSystem, checkAndClaimTasks } = require('./task');
@@ -58,7 +58,6 @@ let lastStatusSentAt = 0;
 let onSellGain = null;
 let onFarmHarvested = null;
 let harvestSellRunning = false;
-let lastLoginCode = '';
 let onWsError = null;
 let wsErrorHandledAt = 0;
 
@@ -229,7 +228,6 @@ async function startBot(config) {
     isRunning = true;
 
     const { code, platform, farmInterval, friendInterval } = config;
-    lastLoginCode = String(code || '');
 
     CONFIG.platform = platform || 'qq';
     if (farmInterval) {
@@ -273,7 +271,7 @@ async function startBot(config) {
         }
         if (isRunning) {
             setTimeout(() => {
-                if (isRunning) reconnect(lastLoginCode);
+                if (isRunning) cleanup();
             }, 1000);
         }
     };
@@ -425,10 +423,6 @@ async function handleApiCall(msg) {
                 result = getAutomation();
                 break;
             }
-            case 'reconnect':
-                reconnect((args && args[0] ? args[0] : {}).code);
-                result = { ok: true };
-                break;
             case 'doFarmOp':
                 result = await runFarmOperation(args[0]); // opType
                 break;

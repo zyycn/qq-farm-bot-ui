@@ -487,6 +487,31 @@ function initTheme() {
     applyTheme(mode);
 }
 
+let passwordToggleBound = false;
+function initPasswordToggles() {
+    if (passwordToggleBound) return;
+    passwordToggleBound = true;
+
+    document.addEventListener('mousedown', (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest('.password-toggle') : null;
+        if (!btn) return;
+        e.preventDefault();
+    });
+
+    document.addEventListener('click', (e) => {
+        const btn = e.target && e.target.closest ? e.target.closest('.password-toggle') : null;
+        if (!btn) return;
+        const targetId = String(btn.getAttribute('data-target') || '');
+        const input = targetId ? $(targetId) : null;
+        if (!input) return;
+        const toText = input.type === 'password';
+        input.type = toText ? 'text' : 'password';
+        btn.innerHTML = `<i class="fas ${toText ? 'fa-eye-slash' : 'fa-eye'}" aria-hidden="true"></i>`;
+        btn.setAttribute('aria-label', toText ? '隐藏密码' : '显示密码');
+        btn.setAttribute('aria-pressed', toText ? 'true' : 'false');
+    });
+}
+
 async function syncThemeFromServer() {
     const data = await api('/api/settings');
     const serverTheme = data && data.ui && (data.ui.theme === 'light' || data.ui.theme === 'dark')

@@ -238,6 +238,24 @@ body.light-theme .account-option:hover { background: rgba(0,0,0,0.05); }
 }
 
 @media (min-width: 981px) {
+  #page-accounts .accounts-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  #page-accounts .acc-item {
+    width: fit-content;
+    max-width: 100%;
+  }
+  #page-accounts .acc-actions {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: clamp(5px, 0.7vh, 10px);
+    width: max-content;
+  }
+  #page-accounts .acc-btn {
+    white-space: nowrap;
+  }
   .app-main {
     height: 100dvh;
     grid-template-rows: var(--topbar-height) minmax(0, 1fr);
@@ -928,6 +946,9 @@ body.light-theme #btn-qr-open-url {
 .settings-layout > .card {
   margin-bottom: 0;
 }
+#page-settings .settings-layout > .card:last-child {
+  align-self: start;
+}
 .settings-actions {
   margin-top: clamp(10px, 1.2vh, 18px);
 }
@@ -997,6 +1018,20 @@ body.light-theme #btn-qr-open-url {
   margin-top: clamp(10px, 1vh, 16px);
   font-size: clamp(calc(15px * var(--font-scale)), calc(17px * var(--font-scale)), calc(20px * var(--font-scale)));
   padding: clamp(10px, 1vh, 13px) clamp(12px, 1vw, 16px);
+}
+#page-settings #btn-change-admin-password {
+  margin-top: 0 !important;
+  height: clamp(38px, 4.2vh, 46px);
+  min-height: clamp(38px, 4.2vh, 46px);
+  padding: 0 clamp(12px, 1vw, 16px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+#page-settings .form-group.password-action {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 #page-settings #card-efficiency {
   display: flex;
@@ -1143,6 +1178,56 @@ body.light-theme #btn-qr-open-url {
 .login-sub { font-size: calc(13px * var(--font-scale)); color: var(--sub); margin: 3px 0 8px; }
 .login-input { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); color: var(--text); padding: 8px 10px; }
 .login-input:focus { outline: none; border-color: var(--primary); }
+.password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.password-wrap .form-control,
+.password-wrap .login-input {
+  width: 100%;
+  padding-right: 42px;
+}
+.password-toggle {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--sub);
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  padding: 0;
+  cursor: pointer;
+  font-size: calc(13px * var(--font-scale));
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.password-toggle:hover {
+  color: var(--text);
+  border-color: var(--primary);
+}
+.password-toggle[aria-pressed="true"] {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+/* 隐藏浏览器原生密码可见按钮，避免和自定义按钮并存 */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-password-reveal-button {
+  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
+}
 .login-error { min-height: 20px; color: var(--danger); font-size: calc(13px * var(--font-scale)); margin-top: 6px; }
 .login-btn { width: 100%; }
 
@@ -1340,6 +1425,12 @@ body.light-theme #btn-qr-open-url {
   }
   #page-settings .checkbox-inline { font-size: calc(16px * var(--font-scale)); }
   #page-settings .save-btn { font-size: calc(16px * var(--font-scale)); padding: 11px 12px; }
+  #page-settings #btn-change-admin-password {
+    margin-top: 0 !important;
+    height: 42px;
+    min-height: 42px;
+    padding: 0 12px;
+  }
 }
 
 @media (max-width: 640px) {

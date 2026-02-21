@@ -7,10 +7,10 @@ const fs = require('fs');
 const path = require('path');
 const { fork } = require('child_process');
 const { startAdminServer } = require('./src/admin');
+const { sendGgPushMessage } = require('./src/push');
+const { MiniProgramLoginSession } = require('./src/qrlogin');
 const store = require('./src/store');
 const { getAccounts, deleteAccount } = store;
-
-const AUTO_DELETE_OFFLINE_MS = 5 * 60 * 1000; // 连续离线 5 分钟后自动删除账号
 
 // ============ 状态管理 ============
 // workers: { [accountId]: { process, status, logs: [], requestQueue: Map } }
@@ -86,6 +86,54 @@ function addAccountLog(action, msg, accountId = '', accountName = '', extra = {}
     };
     ACCOUNT_LOGS.push(entry);
     if (ACCOUNT_LOGS.length > 300) ACCOUNT_LOGS.shift();
+}
+
+async function getOfflineReminderJumpUrl() {
+    try {
+        const result = await MiniProgramLoginSession.requestLoginCode();
+        return String((result && result.url) || '').trim();
+    } catch (e) {
+        return '';
+    }
+}
+
+async function triggerOfflineReminder(payload = {}) {
+    try {
+        const cfg = store.getOfflineReminder ? store.getOfflineReminder() : null;
+        if (!cfg) return;
+
+        const endpoint = String(cfg.endpoint || '').trim();
+        const token = String(cfg.token || '').trim();
+        const title = String(cfg.title || '').trim();
+        const msg = String(cfg.msg || '').trim();
+        if (!token || !title || !msg) return;
+
+        const sender = String(payload.accountName || '').trim();
+        const url = await getOfflineReminderJumpUrl();
+
+        const ret = await sendGgPushMessage({
+            token,
+            title,
+            msg,
+            sender,
+            url,
+        }, { timeoutMs: 10000, endpoint });
+
+        if (ret && ret.ok) {
+            const accountName = String(payload.accountName || payload.accountId || '');
+            log('系统', `下线提醒发送成功: ${accountName}`);
+        } else {
+            log('错误', `下线提醒发送失败: ${ret && ret.msg ? ret.msg : 'unknown'}`);
+        }
+    } catch (e) {
+        log('错误', `下线提醒发送异常: ${e.message}`);
+    }
+}
+
+function getOfflineAutoDeleteMs() {
+    const cfg = store.getOfflineReminder ? store.getOfflineReminder() : null;
+    const sec = Math.max(1, parseInt(cfg && cfg.offlineDeleteSec, 10) || 120);
+    return sec * 1000;
 }
 
 function normalizeStatusForPanel(data, accountId, accountName) {
@@ -230,23 +278,72 @@ function startWorker(account) {
 
     child.on('exit', (code, signal) => {
         log('系统', `账号 ${account.name} 进程退出 (code=${code}, signal=${signal || 'none'})`);
-        delete workers[account.id];
+        const current = workers[account.id];
+        if (current && current.process === child) {
+            delete workers[account.id];
+        }
     });
 }
 
 function stopWorker(accountId) {
     const worker = workers[accountId];
     if (worker) {
+        const proc = worker.process;
         worker.stopping = true;
         worker.process.send({ type: 'stop' });
         // process.kill will happen in 'exit' handler or we can force it
         setTimeout(() => {
-            if (workers[accountId]) {
-                worker.process.kill();
+            const current = workers[accountId];
+            if (current && current.process === proc) {
+                current.process.kill();
                 delete workers[accountId];
             }
         }, 1000);
     }
+}
+
+function restartWorker(account) {
+    if (!account) return;
+    const accountId = account.id;
+    const worker = workers[accountId];
+    if (!worker) {
+        startWorker(account);
+        return;
+    }
+    const proc = worker.process;
+    let started = false;
+    const startOnce = () => {
+        if (started) return;
+        started = true;
+        const current = workers[accountId];
+        if (!current) {
+            startWorker(account);
+            return;
+        }
+        if (current.process === proc) {
+            delete workers[accountId];
+            startWorker(account);
+        }
+    };
+    if (proc.exitCode !== null || proc.signalCode) {
+        startOnce();
+        return;
+    }
+    proc.once('exit', () => {
+        startOnce();
+    });
+    stopWorker(accountId);
+    setTimeout(() => {
+        if (started) return;
+        const current = workers[accountId];
+        if (current && current.process === proc) {
+            try {
+                current.process.kill();
+            } catch (e) {}
+            delete workers[accountId];
+        }
+        startOnce();
+    }, 1500);
 }
 
 function handleWorkerMessage(accountId, msg) {
@@ -265,10 +362,17 @@ function handleWorkerMessage(accountId, msg) {
             const now = Date.now();
             if (!worker.disconnectedSince) worker.disconnectedSince = now;
             const offlineMs = now - worker.disconnectedSince;
-            if (!worker.autoDeleteTriggered && offlineMs >= AUTO_DELETE_OFFLINE_MS) {
+            const autoDeleteMs = getOfflineAutoDeleteMs();
+            if (!worker.autoDeleteTriggered && offlineMs >= autoDeleteMs) {
                 worker.autoDeleteTriggered = true;
                 const offlineMin = Math.floor(offlineMs / 60000);
                 log('系统', `账号 ${worker.name} 持续离线 ${offlineMin} 分钟，自动删除账号信息`);
+                triggerOfflineReminder({
+                    accountId,
+                    accountName: worker.name,
+                    reason: 'offline_timeout',
+                    offlineMs,
+                });
                 addAccountLog(
                     'offline_delete',
                     `账号 ${worker.name} 持续离线 ${offlineMin} 分钟，已自动删除`,
@@ -316,6 +420,12 @@ function handleWorkerMessage(accountId, msg) {
     } else if (msg.type === 'account_kicked') {
         const reason = msg.reason || '未知';
         log('系统', `账号 ${worker.name} 被踢下线，自动删除账号信息`);
+        triggerOfflineReminder({
+            accountId,
+            accountName: worker.name,
+            reason: `kickout:${reason}`,
+            offlineMs: 0,
+        });
         addAccountLog('kickout_delete', `账号 ${worker.name} 被踢下线，已自动删除`, accountId, worker.name, { reason });
         stopWorker(accountId);
         try {
@@ -396,8 +506,7 @@ const dataProvider = {
         broadcastConfigToWorkers(accountId);
         return { automation: store.getAutomation(accountId), configRevision: rev };
     },
-    reconnect: (accountId, code) => callWorkerApi(accountId, 'reconnect', { code }),
-    
+
     doFarmOp: (accountId, opType) => callWorkerApi(accountId, 'doFarmOp', opType),
     doAnalytics: (accountId, sortBy) => callWorkerApi(accountId, 'getAnalytics', sortBy),
     saveSettings: async (accountId, payload) => {
@@ -442,6 +551,11 @@ const dataProvider = {
     },
     
     stopAccount: (id) => stopWorker(id),
+    restartAccount: (id) => {
+        const data = getAccounts();
+        const acc = data.accounts.find(a => a.id === id);
+        if (acc) restartWorker(acc);
+    },
 };
 
 // ============ 主入口 ============

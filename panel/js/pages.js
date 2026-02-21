@@ -535,6 +535,31 @@ if (changeAdminPasswordBtn) {
     });
 }
 
+const saveOfflineReminderBtn = document.getElementById('btn-save-offline-reminder');
+if (saveOfflineReminderBtn) {
+    saveOfflineReminderBtn.addEventListener('click', async () => {
+        const endpoint = String((($('offline-reminder-endpoint') || {}).value || '')).trim();
+        const token = String((($('offline-reminder-token') || {}).value || '')).trim();
+        const title = String((($('offline-reminder-title') || {}).value || '')).trim();
+        const msg = String((($('offline-reminder-msg') || {}).value || '')).trim();
+        let offlineDeleteSec = parseInt((($('offline-delete-seconds') || {}).value || ''), 10);
+        if (!Number.isFinite(offlineDeleteSec) || offlineDeleteSec < 1) offlineDeleteSec = 120;
+
+        saveOfflineReminderBtn.disabled = true;
+        try {
+            const ret = await api('/api/settings/offline-reminder', 'POST', { endpoint, token, title, msg, offlineDeleteSec });
+            if (!ret) {
+                alert('保存下线提醒设置失败');
+                return;
+            }
+            if ($('offline-delete-seconds')) $('offline-delete-seconds').value = String(offlineDeleteSec);
+            alert('下线提醒设置已保存');
+        } finally {
+            saveOfflineReminderBtn.disabled = false;
+        }
+    });
+}
+
 // 加载额外设置
 async function loadSettings() {
     const data = await api('/api/settings');
@@ -584,6 +609,12 @@ async function loadSettings() {
             localStorage.setItem(THEME_STORAGE_KEY, data.ui.theme);
             applyTheme(data.ui.theme);
         }
+        const reminder = (data.offlineReminder && typeof data.offlineReminder === 'object') ? data.offlineReminder : {};
+        if ($('offline-reminder-endpoint')) $('offline-reminder-endpoint').value = String(reminder.endpoint || 'http://www.ggsuper.com.cn/push/api/v1/sendMsg3_New.php');
+        if ($('offline-reminder-token')) $('offline-reminder-token').value = String(reminder.token || '');
+        if ($('offline-reminder-title')) $('offline-reminder-title').value = String(reminder.title || '账号下线提醒');
+        if ($('offline-reminder-msg')) $('offline-reminder-msg').value = String(reminder.msg || '账号下线');
+        if ($('offline-delete-seconds')) $('offline-delete-seconds').value = String(Number(reminder.offlineDeleteSec || 120));
         const enabled = !!$('friend-quiet-enabled').checked;
         $('friend-quiet-start').disabled = !enabled;
         $('friend-quiet-end').disabled = !enabled;
@@ -765,7 +796,7 @@ function renderAccountManager() {
                     ? `<button class="btn acc-btn acc-btn-stop" onclick="stopAccount('${a.id}')">停止</button>`
                     : `<button class="btn btn-primary acc-btn" onclick="startAccount('${a.id}')">启动</button>`
                 }
-                <button class="btn btn-primary acc-btn" onclick="refreshAccountCode('${a.id}')">更新Code</button>
+                <button class="btn btn-primary acc-btn" onclick="refreshAccountCode('${a.id}')">更新码</button>
                 <button class="btn btn-primary acc-btn" onclick="editAccount('${a.id}')">编辑</button>
                 <button class="btn acc-btn acc-btn-danger" onclick="deleteAccount('${a.id}')">删除</button>
             </div>

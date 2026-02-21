@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>QQ农场智能助手</title>
-  <link rel="stylesheet" href="style.css?v=2026021785">
+  <link rel="stylesheet" href="style.css?v=2026022002">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -12,7 +12,10 @@
     <div class="login-card">
       <div class="login-title">登录面板</div>
       <div class="login-sub">请输入管理密码</div>
-      <input id="login-password" class="login-input" type="password" placeholder="管理密码">
+      <div class="password-wrap">
+        <input id="login-password" class="login-input" type="password" placeholder="管理密码">
+        <button class="password-toggle" type="button" data-target="login-password" aria-pressed="false" aria-label="显示密码"><i class="fas fa-eye" aria-hidden="true"></i></button>
+      </div>
       <div id="login-error" class="login-error"></div>
       <button id="btn-login" class="btn btn-primary login-btn">登录</button>
     </div>
@@ -267,9 +270,7 @@
                 <div class="form-group"><label>静默开始时间</label><input id="friend-quiet-start" class="form-control" type="time" value="23:00"></div>
                 <div class="form-group"><label>静默结束时间</label><input id="friend-quiet-end" class="form-control" type="time" value="07:00"></div>
               </div>
-            </div>
-            <div class="card" id="card-efficiency">
-              <div class="card-head"><h3><i class="fas fa-toggle-on"></i> 自动控制</h3></div>
+              <div class="card-head" style="margin-top:12px"><h3><i class="fas fa-toggle-on"></i> 自动控制</h3></div>
               <div class="switches-list">
                 <div class="switch-inline-row">
                   <label class="switch-item switch-inline-item"><span class="switch-inline-label">自动种植收获</span><input type="checkbox" id="auto-farm"><span class="slider"></span></label>
@@ -299,22 +300,33 @@
                   </select>
                 </div>
               </div>
+              <div class="settings-actions">
+                <button id="btn-save-settings" class="btn btn-primary save-btn">保存策略与自动控制</button>
+              </div>
             </div>
             <div class="card">
               <div class="card-head"><h3><i class="fas fa-lock"></i> 管理密码</h3></div>
               <div class="settings-grid">
-                <div class="form-group"><label>当前密码</label><input id="admin-old-password" class="form-control" type="password" placeholder="当前管理密码"></div>
-                <div class="form-group"><label>新密码</label><input id="admin-new-password" class="form-control" type="password" placeholder="至少 4 位"></div>
-                <div class="form-group"><label>确认新密码</label><input id="admin-new-password2" class="form-control" type="password" placeholder="再次输入新密码"></div>
+                <div class="form-group"><label>当前密码</label><div class="password-wrap"><input id="admin-old-password" class="form-control" type="password" placeholder="当前管理密码"><button class="password-toggle" type="button" data-target="admin-old-password" aria-pressed="false" aria-label="显示密码"><i class="fas fa-eye" aria-hidden="true"></i></button></div></div>
+                <div class="form-group"><label>新密码</label><div class="password-wrap"><input id="admin-new-password" class="form-control" type="password" placeholder="至少 4 位"><button class="password-toggle" type="button" data-target="admin-new-password" aria-pressed="false" aria-label="显示密码"><i class="fas fa-eye" aria-hidden="true"></i></button></div></div>
+                <div class="form-group"><label>确认新密码</label><div class="password-wrap"><input id="admin-new-password2" class="form-control" type="password" placeholder="再次输入新密码"><button class="password-toggle" type="button" data-target="admin-new-password2" aria-pressed="false" aria-label="显示密码"><i class="fas fa-eye" aria-hidden="true"></i></button></div></div>
+                <div class="form-group password-action">
+                  <label>建议修改默认密码，默认密码：admin</label>
+                  <button id="btn-change-admin-password" class="btn btn-primary save-btn">修改管理密码</button>
+                </div>
+              </div>
+              <div class="card-head" style="margin-top:12px"><h3><i class="fas fa-bell"></i> 下线提醒</h3></div>
+              <div class="settings-grid">
+                <div class="form-group full"><label>接口地址</label><input id="offline-reminder-endpoint" class="form-control" type="text" placeholder="http://www.ggsuper.com.cn/push/api/v1/sendMsg3_New.php"></div>
+                <div class="form-group"><label>token</label><input id="offline-reminder-token" class="form-control" type="text" placeholder="接收端 token"></div>
+                <div class="form-group"><label>title</label><input id="offline-reminder-title" class="form-control" type="text" placeholder="提醒标题"></div>
+                <div class="form-group"><label>msg</label><input id="offline-reminder-msg" class="form-control" type="text" placeholder="提醒内容"></div>
+                <div class="form-group"><label>离线删除账号（秒）</label><input id="offline-delete-seconds" class="form-control" type="number" min="1" step="1" placeholder="默认 120"></div>
               </div>
               <div class="settings-actions">
-                <button id="btn-change-admin-password" class="btn btn-primary">修改管理密码</button>
-                <div style="margin-top:8px;color:var(--text-sub);font-size:13px">首次使用建议修改默认密码，默认密码：admin</div>
+                <button id="btn-save-offline-reminder" class="btn btn-primary save-btn">保存下线提醒设置</button>
               </div>
             </div>
-          </div>
-          <div class="settings-actions">
-            <button id="btn-save-settings" class="btn btn-primary save-btn">保存策略与自动控制</button>
           </div>
         </div>
       </section>
@@ -350,10 +362,10 @@
     </div>
   </div>
 
-  <script src="js/core.js?v=2026021808"></script>
-  <script src="js/polling-accounts.js?v=2026021808"></script>
-  <script src="js/pages.js?v=2026021808"></script>
-  <script src="js/modal-accounts.js?v=2026021808"></script>
-  <script src="js/init.js?v=2026021808"></script>
+  <script src="js/core.js?v=2026022002"></script>
+  <script src="js/polling-accounts.js?v=2026022002"></script>
+  <script src="js/pages.js?v=2026022002"></script>
+  <script src="js/modal-accounts.js?v=2026022002"></script>
+  <script src="js/init.js?v=2026022002"></script>
 </body>
 </html>

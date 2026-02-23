@@ -105,7 +105,7 @@ export const useAccountStore = defineStore('account', () => {
 
   async function updateAccount(id: string, payload: any) {
     try {
-      // Backend uses POST /api/accounts for both add and update (if id is present)
+      // core uses POST /api/accounts for both add and update (if id is present)
       await api.post('/api/accounts', { ...payload, id })
       await fetchAccounts()
     }

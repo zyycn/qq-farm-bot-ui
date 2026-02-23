@@ -8,35 +8,35 @@ RUN corepack enable
 COPY pnpm-workspace.yaml package.json ./
 
 # Copy project package.json files
-COPY backend/package.json ./backend/
-COPY frontend/package.json ./frontend/
+COPY core/package.json ./core/
+COPY web/package.json ./web/
 
 # Install dependencies (frozen-lockfile is default for pnpm install in CI)
 RUN pnpm install
 
 # Copy source code
-COPY backend ./backend
-COPY frontend ./frontend
+COPY core ./core
+COPY web ./web
 
-# Build frontend
-RUN pnpm build:frontend
+# Build web
+RUN pnpm build:web
 
 # ==========================================
 
 FROM node:20-alpine AS runner
 
-WORKDIR /app/backend
+WORKDIR /app/core
 
 ENV NODE_ENV=production
 ENV TZ=Asia/Shanghai
 
-# Copy backend source and dependencies
-COPY --from=builder /app/backend ./
+# Copy core source and dependencies
+COPY --from=builder /app/core ./
 COPY --from=builder /app/node_modules ./node_modules/
 COPY --from=builder /app/package.json ../package.json
 
-# Copy built frontend assets
-COPY --from=builder /app/frontend/dist ../frontend/dist
+# Copy built web assets
+COPY --from=builder /app/web/dist ../web/dist
 
 # Expose port
 EXPOSE 3000

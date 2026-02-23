@@ -49,12 +49,12 @@ function startAdminServer(dataProvider) {
         next();
     });
 
-    const frontendDist = path.join(__dirname, '../../../frontend/dist');
-    if (fs.existsSync(frontendDist)) {
-        app.use(express.static(frontendDist));
+    const webDist = path.join(__dirname, '../../../web/dist');
+    if (fs.existsSync(webDist)) {
+        app.use(express.static(webDist));
     } else {
-        console.warn('Frontend build not found at:', frontendDist);
-        app.get('/', (req, res) => res.send('Frontend build not found. Please build the frontend project.'));
+        console.warn('web build not found at:', webDist);
+        app.get('/', (req, res) => res.send('web build not found. Please build the web project.'));
     }
     app.use('/game-config', express.static(getResourcePath('gameConfig')));
 
@@ -467,10 +467,10 @@ function startAdminServer(dataProvider) {
         if (req.path.startsWith('/api') || req.path.startsWith('/game-config')) {
              return res.status(404).json({ ok: false, error: 'Not Found' });
         }
-        if (fs.existsSync(frontendDist)) {
-            res.sendFile(path.join(frontendDist, 'index.html'));
+        if (fs.existsSync(webDist)) {
+            res.sendFile(path.join(webDist, 'index.html'));
         } else {
-            res.status(404).send('Frontend build not found. Please build the frontend project.');
+            res.status(404).send('web build not found. Please build the web project.');
         }
     });
 

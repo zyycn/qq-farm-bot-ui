@@ -1,12 +1,10 @@
-import { useDark, useToggle } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import api from '@/api'
 
 export const useAppStore = defineStore('app', () => {
   const sidebarOpen = ref(false)
-  const isDark = useDark()
-  const toggleDark = useToggle(isDark)
+  const isDark = ref(false)
 
   function toggleSidebar() {
     sidebarOpen.value = !sidebarOpen.value
@@ -43,10 +41,20 @@ export const useAppStore = defineStore('app', () => {
     }
   }
 
-  // Watch for changes in isDark and sync with backend
+  function toggleDark() {
+    const newTheme = isDark.value ? 'light' : 'dark'
+    setTheme(newTheme)
+  }
+
+  // Watch for changes in isDark and apply theme class
   watch(isDark, (val) => {
-    setTheme(val ? 'dark' : 'light')
-  })
+    if (val) {
+      document.documentElement.classList.add('dark')
+    }
+    else {
+      document.documentElement.classList.remove('dark')
+    }
+  }, { immediate: true })
 
   return {
     sidebarOpen,

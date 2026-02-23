@@ -29,7 +29,7 @@
   },
   "pkg": {
     "assets": [
-      "../frontend/dist/**/*",
+      "../web/dist/**/*",
       "src/gameConfig/**/*",
       "src/proto/**/*",
       "share.txt"

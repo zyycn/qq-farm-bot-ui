@@ -56,8 +56,8 @@ pnpm -v
 cd D:\Projects\qq-farm-bot-ui
 pnpm install
 # 安装前端依赖并构建
-pnpm frontend:install
-pnpm frontend:build
+pnpm web:install
+pnpm web:build
 ```
 
 3. 启动项目
@@ -93,8 +93,8 @@ pnpm -v
 cd /path/to/qq-farm-bot-ui
 pnpm install
 # 安装前端依赖并构建
-pnpm frontend:install
-pnpm frontend:build
+pnpm web:install
+pnpm web:build
 ```
 
 3. 启动项目
@@ -223,7 +223,7 @@ data/store.json              # 运行配置持久化
 data/accounts.json           # 账号数据持久化
 gameConfig/                  # 游戏静态配置
 proto/                       # Protobuf 协议定义
-frontend/                    # 新版 Web 面板（Vue 3 + Vite）
+web/                    # 新版 Web 面板（Vue 3 + Vite）
   src/                       # 前端源代码
   dist/                      # 构建后的静态资源（由 Docker 或构建脚本生成）
 ```

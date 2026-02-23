@@ -33,7 +33,7 @@ async function loadAnalytics() {
     const data = res.data.data
     if (Array.isArray(data)) {
       list.value = data
-      // Frontend sort as fallback
+      // web sort as fallback
       const metricMap: Record<string, string> = {
         exp: 'expPerHour',
         fert: 'normalFertilizerExpPerHour',

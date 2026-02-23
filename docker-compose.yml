@@ -2,7 +2,7 @@ services:
   qq-farm-bot-ui:
     build:
       context: .
-      dockerfile: backend/Dockerfile
+      dockerfile: core/Dockerfile
     container_name: qq-farm-bot-ui
     restart: unless-stopped
     environment:
@@ -11,4 +11,4 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./data:/app/backend/data
+      - ./data:/app/core/data

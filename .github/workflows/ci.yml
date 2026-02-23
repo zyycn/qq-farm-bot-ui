@@ -34,28 +34,28 @@ jobs:
         run: pnpm package:release
 
       - name: List Artifacts
-        run: ls -R backend/dist
+        run: ls -R core/dist
 
       - name: Upload Windows
         uses: actions/upload-artifact@v4
         with:
           name: farm-win-x64
-          path: ./backend/dist/qq-farm-bot-win-x64.exe
+          path: ./core/dist/qq-farm-bot-win-x64.exe
 
       - name: Upload Linux
         uses: actions/upload-artifact@v4
         with:
           name: farm-linux-x64
-          path: ./backend/dist/qq-farm-bot-linux-x64
+          path: ./core/dist/qq-farm-bot-linux-x64
 
       - name: Upload MacOS Intel
         uses: actions/upload-artifact@v4
         with:
           name: farm-mac-x64
-          path: ./backend/dist/qq-farm-bot-macos-x64
+          path: ./core/dist/qq-farm-bot-macos-x64
 
       - name: Upload MacOS Apple Silicon
         uses: actions/upload-artifact@v4
         with:
           name: farm-mac-arm64
-          path: ./backend/dist/qq-farm-bot-macos-arm64
+          path: ./core/dist/qq-farm-bot-macos-arm64

@@ -8,7 +8,7 @@ importers:
 
   .: {}
 
-  backend:
+  core:
     dependencies:
       axios:
         specifier: ^1.6.0
@@ -33,7 +33,7 @@ importers:
         specifier: ^5.8.1
         version: 5.8.1
 
-  frontend:
+  web:
     dependencies:
       '@types/nprogress':
         specifier: ^0.2.3

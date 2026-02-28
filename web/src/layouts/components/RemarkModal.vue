@@ -30,10 +30,9 @@ async function save() {
   errorMessage.value = ''
   try {
     const payload = {
-      ...props.account,
+      id: props.account.id,
       name: name.value,
     }
-    delete payload.nick
 
     const res = await accountApi.saveAccount(payload)
     if (res.data.ok) {

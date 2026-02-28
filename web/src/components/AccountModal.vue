@@ -158,12 +158,35 @@ async function submitManual() {
     form.code = code
   }
 
-  const payload = {
-    id: props.editData?.id,
-    name: form.name,
-    code,
-    platform: form.platform,
-    loginType: 'manual',
+  let payload = {}
+  if (props.editData) {
+    const onlyNameChanged = form.name !== props.editData.name
+      && form.code === (props.editData.code || '')
+      && form.platform === (props.editData.platform || 'qq')
+
+    if (onlyNameChanged) {
+      payload = {
+        id: props.editData.id,
+        name: form.name,
+      }
+    }
+    else {
+      payload = {
+        id: props.editData.id,
+        name: form.name,
+        code,
+        platform: form.platform,
+        loginType: 'manual',
+      }
+    }
+  }
+  else {
+    payload = {
+      name: form.name,
+      code,
+      platform: form.platform,
+      loginType: 'manual',
+    }
   }
 
   await addAccount(payload)
@@ -330,7 +353,7 @@ watch(
           <a-textarea v-model:value="form.code" :rows="3" placeholder="请输入登录 Code 或包含 code 的链接" />
         </a-form-item>
 
-        <a-form-item label="平台">
+        <a-form-item v-if="!editData" label="平台">
           <a-select
             v-model:value="form.platform"
             :options="[

@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AccountModal from '@/components/AccountModal.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
-import { useAccountStore } from '@/stores/account'
+import { getPlatformClass, getPlatformLabel, useAccountStore } from '@/stores/account'
 
 const router = useRouter()
 const accountStore = useAccountStore()
@@ -150,9 +150,17 @@ function getDisplayName(acc: any) {
                 <div class="truncate text-base font-bold a-color-text">
                   {{ getDisplayName(acc) }}
                 </div>
-                <div class="mt-0.5 flex items-center gap-1.5 text-sm a-color-text-tertiary">
-                  <div class="i-twemoji-identification-card text-base" />
-                  {{ acc.uin || '未绑定' }}
+                <div class="mt-0.5 flex items-center gap-1.5">
+                  <span
+                    v-if="acc.platform"
+                    class="rounded px-1 py-0.5 text-xs font-medium leading-tight"
+                    :class="getPlatformClass(acc.platform)"
+                  >
+                    {{ getPlatformLabel(acc.platform) }}
+                  </span>
+                  <span class="text-sm a-color-text-tertiary">
+                    {{ acc.uin || '未绑定' }}
+                  </span>
                 </div>
               </div>
             </div>

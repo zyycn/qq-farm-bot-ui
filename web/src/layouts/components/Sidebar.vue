@@ -7,7 +7,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { authApi } from '@/api'
 import AccountModal from '@/components/AccountModal.vue'
 import routes from '@/router/routes'
-import { useAccountStore } from '@/stores/account'
+import { getPlatformLabel, useAccountStore } from '@/stores/account'
 
 import { useAppStore } from '@/stores/app'
 import { useStatusStore } from '@/stores/status'
@@ -127,17 +127,25 @@ const uptime = computed(() => {
   return `${h}h ${m}m ${s}s`
 })
 
+const platform = computed(() => getPlatformLabel(currentAccount.value?.platform))
+
 const displayName = computed(() => {
   const acc = currentAccount.value
   if (!acc)
     return '选择账号'
 
   const liveName = status.value?.status?.name
-  if (liveName && liveName !== '未登录')
+  if (liveName && liveName !== '未登录') {
+    if (acc.name)
+      return `${liveName} (${acc.name})`
     return liveName
+  }
 
-  if (acc.name)
+  if (acc.name) {
+    if (acc.nick)
+      return `${acc.nick} (${acc.name})`
     return acc.name
+  }
 
   if (acc.nick)
     return acc.nick
@@ -253,7 +261,8 @@ watch(
               <div class="truncate text-base font-semibold leading-snug a-color-text">
                 {{ displayName }}
               </div>
-              <div class="truncate text-sm a-color-text-tertiary">
+              <div class="flex items-center gap-1.5 truncate text-sm a-color-text-tertiary">
+                <span v-if="platform" class="shrink-0 text-xs font-medium a-color-primary-text">{{ platform }}</span>
                 {{ currentAccount?.uin || '未选择账号' }}
               </div>
             </div>
@@ -400,7 +409,8 @@ watch(
               <div class="truncate text-base font-semibold leading-snug a-color-text">
                 {{ displayName }}
               </div>
-              <div class="truncate text-sm a-color-text-tertiary">
+              <div class="flex items-center gap-1.5 truncate text-sm a-color-text-tertiary">
+                <span v-if="platform" class="shrink-0 text-xs font-medium a-color-primary-text">{{ platform }}</span>
                 {{ currentAccount?.uin || '未选择账号' }}
               </div>
             </div>

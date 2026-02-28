@@ -91,17 +91,29 @@ const logLevels = [
 ]
 
 const displayName = computed(() => {
+  const account = accountStore.currentAccount
   const gameName = status.value?.status?.name
-  if (gameName)
+  if (gameName) {
+    if (account?.name)
+      return `${gameName} (${account.name})`
     return gameName
-
-  if (!status.value?.connection?.connected) {
-    const account = accountStore.currentAccount
-    return account?.name || account?.nick || '未登录'
   }
 
-  const account = accountStore.currentAccount
-  return account?.name || account?.nick || '未命名'
+  if (!status.value?.connection?.connected) {
+    if (account) {
+      if (account.name && account.nick)
+        return `${account.nick} (${account.name})`
+      return account.name || account.nick || '未登录'
+    }
+    return '未登录'
+  }
+
+  if (account) {
+    if (account.name && account.nick)
+      return `${account.nick} (${account.name})`
+    return account.name || account.nick || '未命名'
+  }
+  return '未命名'
 })
 
 const expRate = computed(() => {

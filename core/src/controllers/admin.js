@@ -233,6 +233,9 @@ function startAdminServer(dataProvider) {
 
     app.post('/api/automation', async (req, res) => {
         const id = getAccId(req);
+        if (!id) {
+            return res.status(400).json({ ok: false, error: 'Missing x-account-id' });
+        }
         try {
             let lastData = null;
             for (const [k, v] of Object.entries(req.body)) {
@@ -411,6 +414,9 @@ function startAdminServer(dataProvider) {
     // API: 设置页统一保存（单次写入+单次广播）
     app.post('/api/settings/save', async (req, res) => {
         const id = getAccId(req);
+        if (!id) {
+            return res.status(400).json({ ok: false, error: 'Missing x-account-id' });
+        }
         try {
             const data = await provider.saveSettings(id, req.body || {});
             res.json({ ok: true, data: data || {} });

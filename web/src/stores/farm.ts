@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import api from '@/api'
+import { farmApi } from '@/api'
 
 export interface Land {
   id: number
@@ -26,9 +26,7 @@ export const useFarmStore = defineStore('farm', () => {
       return
     loading.value = true
     try {
-      const { data } = await api.get('/api/lands', {
-        headers: { 'x-account-id': accountId },
-      })
+      const { data } = await farmApi.fetchLands()
       if (data && data.ok) {
         lands.value = data.data.lands || []
         summary.value = data.data.summary || {}
@@ -42,9 +40,7 @@ export const useFarmStore = defineStore('farm', () => {
   async function fetchSeeds(accountId: string) {
     if (!accountId)
       return
-    const { data } = await api.get('/api/seeds', {
-      headers: { 'x-account-id': accountId },
-    })
+    const { data } = await farmApi.fetchSeeds()
     if (data && data.ok)
       seeds.value = data.data || []
   }
@@ -52,9 +48,7 @@ export const useFarmStore = defineStore('farm', () => {
   async function operate(accountId: string, opType: string) {
     if (!accountId)
       return
-    await api.post('/api/farm/operate', { opType }, {
-      headers: { 'x-account-id': accountId },
-    })
+    await farmApi.operate(opType)
     await fetchLands(accountId)
   }
 

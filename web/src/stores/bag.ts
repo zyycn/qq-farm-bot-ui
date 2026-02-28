@@ -1,10 +1,13 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import api from '@/api'
+import { bagApi } from '@/api'
+
+const BAG_ERROR_COOLDOWN_MS = 15_000
 
 export const useBagStore = defineStore('bag', () => {
   const allItems = ref<any[]>([])
   const loading = ref(false)
+  const lastErrorAt = ref(0)
 
   const items = computed(() => {
     // Filter out hidden items (e.g. coins, coupons, exp which are shown in dashboard)
@@ -20,17 +23,18 @@ export const useBagStore = defineStore('bag', () => {
   async function fetchBag(accountId: string) {
     if (!accountId)
       return
+    if (Date.now() - lastErrorAt.value < BAG_ERROR_COOLDOWN_MS)
+      return
     loading.value = true
     try {
-      const res = await api.get('/api/bag', {
-        headers: { 'x-account-id': accountId },
-      })
+      const res = await bagApi.fetchBag()
       if (res.data.ok && res.data.data) {
         allItems.value = Array.isArray(res.data.data.items) ? res.data.data.items : []
       }
     }
     catch (e) {
-      console.error(e)
+      lastErrorAt.value = Date.now()
+      console.error('fetchBag failed:', e)
     }
     finally {
       loading.value = false

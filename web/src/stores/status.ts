@@ -3,7 +3,7 @@ import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { io } from 'socket.io-client'
 import { ref } from 'vue'
-import api from '@/api'
+import { statusApi } from '@/api'
 
 // Define interfaces for better type checking
 interface DailyGift {
@@ -177,9 +177,7 @@ export const useStatusStore = defineStore('status', () => {
       return
     loading.value = true
     try {
-      const { data } = await api.get('/api/status', {
-        headers: { 'x-account-id': accountId },
-      })
+      const { data } = await statusApi.fetchStatus()
       if (data.ok) {
         status.value = normalizeStatusPayload(data.data)
         error.value = ''
@@ -199,17 +197,8 @@ export const useStatusStore = defineStore('status', () => {
   async function fetchLogs(accountId: string, options: any = {}) {
     if (!accountId && options.accountId !== 'all')
       return
-    const params: any = { limit: 100, ...options }
-    const headers: any = {}
-    if (accountId && accountId !== 'all') {
-      headers['x-account-id'] = accountId
-    }
-    else {
-      params.accountId = 'all'
-    }
-
     try {
-      const { data } = await api.get('/api/logs', { headers, params })
+      const { data } = await statusApi.fetchLogs(accountId, options)
       if (data.ok) {
         logs.value = data.data
         error.value = ''
@@ -224,9 +213,7 @@ export const useStatusStore = defineStore('status', () => {
     if (!accountId)
       return
     try {
-      const { data } = await api.get('/api/daily-gifts', {
-        headers: { 'x-account-id': accountId },
-      })
+      const { data } = await statusApi.fetchDailyGifts()
       if (data.ok) {
         dailyGifts.value = data.data
       }
@@ -238,7 +225,7 @@ export const useStatusStore = defineStore('status', () => {
 
   async function fetchAccountLogs(limit = 100) {
     try {
-      const res = await api.get(`/api/account-logs?limit=${Math.max(1, Number(limit) || 100)}`)
+      const res = await statusApi.fetchAccountLogs(limit)
       if (Array.isArray(res.data)) {
         accountLogs.value = res.data
       }

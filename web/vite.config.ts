@@ -8,11 +8,10 @@ import viteCompression from 'vite-plugin-compression'
 
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
-    UnoCSS() as any,
+    UnoCSS(),
     viteCompression({
       verbose: true,
       disable: false,

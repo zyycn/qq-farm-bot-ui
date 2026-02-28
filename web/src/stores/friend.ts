@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import api from '@/api'
+import { friendApi } from '@/api'
 
 export const useFriendStore = defineStore('friend', () => {
   const friends = ref<any[]>([])
@@ -14,9 +14,7 @@ export const useFriendStore = defineStore('friend', () => {
       return
     loading.value = true
     try {
-      const res = await api.get('/api/friends', {
-        headers: { 'x-account-id': accountId },
-      })
+      const res = await friendApi.fetchFriends()
       if (res.data.ok) {
         friends.value = res.data.data || []
       }
@@ -30,9 +28,7 @@ export const useFriendStore = defineStore('friend', () => {
     if (!accountId)
       return
     try {
-      const res = await api.get('/api/friend-blacklist', {
-        headers: { 'x-account-id': accountId },
-      })
+      const res = await friendApi.fetchBlacklist()
       if (res.data.ok) {
         blacklist.value = res.data.data || []
       }
@@ -43,9 +39,7 @@ export const useFriendStore = defineStore('friend', () => {
   async function toggleBlacklist(accountId: string, gid: number) {
     if (!accountId || !gid)
       return
-    const res = await api.post('/api/friend-blacklist/toggle', { gid }, {
-      headers: { 'x-account-id': accountId },
-    })
+    const res = await friendApi.toggleBlacklist(gid)
     if (res.data.ok) {
       blacklist.value = res.data.data || []
     }
@@ -56,9 +50,7 @@ export const useFriendStore = defineStore('friend', () => {
       return
     friendLandsLoading.value[friendId] = true
     try {
-      const res = await api.get(`/api/friend/${friendId}/lands`, {
-        headers: { 'x-account-id': accountId },
-      })
+      const res = await friendApi.fetchFriendLands(friendId)
       if (res.data.ok) {
         friendLands.value[friendId] = res.data.data.lands || []
       }
@@ -71,9 +63,7 @@ export const useFriendStore = defineStore('friend', () => {
   async function operate(accountId: string, friendId: string, opType: string) {
     if (!accountId || !friendId)
       return
-    await api.post(`/api/friend/${friendId}/op`, { opType }, {
-      headers: { 'x-account-id': accountId },
-    })
+    await friendApi.operateFriend(friendId, opType)
     await fetchFriends(accountId)
     if (friendLands.value[friendId]) {
       await fetchFriendLands(accountId, friendId)

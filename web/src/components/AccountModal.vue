@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { useIntervalFn } from '@vueuse/core'
 import { computed, reactive, ref, watch } from 'vue'
-import api from '@/api'
-import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseInput from '@/components/ui/BaseInput.vue'
-import BaseSelect from '@/components/ui/BaseSelect.vue'
-import BaseTextarea from '@/components/ui/BaseTextarea.vue'
+import { accountApi } from '@/api'
 
 const props = defineProps<{
   show: boolean
@@ -14,7 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'saved'])
 
-const activeTab = ref('qr') // qr, manual
+const activeTab = ref('qr')
 const loading = ref(false)
 const qrData = ref<{ image?: string, code: string, qrcode?: string, url?: string } | null>(null)
 const qrStatus = ref('')
@@ -26,55 +22,53 @@ const form = reactive({
   platform: 'qq',
 })
 
-const { pause: stopQRCheck, resume: startQRCheck } = useIntervalFn(async () => {
-  if (!qrData.value)
-    return
-  try {
-    const res = await api.post('/api/qr/check', { code: qrData.value.code })
-    if (res.data.ok) {
-      const status = res.data.data.status
-      if (status === 'OK') {
-        // Login success
-        stopQRCheck()
-        qrStatus.value = '登录成功!'
-        // Auto fill form and submit
-        const { uin, code: authCode, nickname } = res.data.data
+const { pause: stopQRCheck, resume: startQRCheck } = useIntervalFn(
+  async () => {
+    if (!qrData.value)
+      return
+    try {
+      const res = await accountApi.checkQR(qrData.value.code)
+      if (res.data.ok) {
+        const status = res.data.data.status
+        if (status === 'OK') {
+          stopQRCheck()
+          qrStatus.value = '登录成功!'
+          const { uin, code: authCode, nickname } = res.data.data
 
-        // Use name from form if provided, otherwise default
-        let accName = form.name.trim()
-        if (!accName) {
-          // 优先使用 nickname，其次使用 uin
-          accName = nickname || (uin ? String(uin) : '扫码账号')
+          let accName = form.name.trim()
+          if (!accName) {
+            accName = nickname || (uin ? String(uin) : '扫码账号')
+          }
+
+          await addAccount({
+            id: props.editData?.id,
+            uin,
+            code: authCode,
+            loginType: 'qr',
+            name: props.editData ? props.editData.name || accName : accName,
+            platform: 'qq',
+          })
         }
-
-        // We need to add account with this data
-        await addAccount({
-          id: props.editData?.id,
-          uin,
-          code: authCode,
-          loginType: 'qr',
-          name: props.editData ? (props.editData.name || accName) : accName,
-          platform: 'qq',
-        })
-      }
-      else if (status === 'Used') {
-        qrStatus.value = '二维码已失效' // Consistent text
-        stopQRCheck()
-      }
-      else if (status === 'Wait') {
-        qrStatus.value = '等待扫码...'
-      }
-      else {
-        qrStatus.value = `错误: ${res.data.data.error}`
+        else if (status === 'Used') {
+          qrStatus.value = '二维码已失效'
+          stopQRCheck()
+        }
+        else if (status === 'Wait') {
+          qrStatus.value = '等待扫码...'
+        }
+        else {
+          qrStatus.value = `错误: ${res.data.data.error}`
+        }
       }
     }
-  }
-  catch (e) {
-    console.error(e)
-  }
-}, 1000, { immediate: false })
+    catch (e) {
+      console.error(e)
+    }
+  },
+  1000,
+  { immediate: false },
+)
 
-// QR Code Logic
 async function loadQRCode() {
   if (activeTab.value !== 'qr')
     return
@@ -82,7 +76,7 @@ async function loadQRCode() {
   qrStatus.value = '正在获取二维码'
   errorMessage.value = ''
   try {
-    const res = await api.post('/api/qr/create')
+    const res = await accountApi.createQR()
     if (res.data.ok) {
       qrData.value = res.data.data
       qrStatus.value = '请使用手机QQ扫码'
@@ -113,7 +107,6 @@ function openQRCodeLoginUrl() {
     return
   }
 
-  // Mobile Deep Link logic
   try {
     const b64 = btoa(unescape(encodeURIComponent(url)))
     const qqDeepLink = `mqqapi://forward/url?url_prefix=${encodeURIComponent(b64)}&version=1&src_type=web`
@@ -129,7 +122,7 @@ async function addAccount(data: any) {
   loading.value = true
   errorMessage.value = ''
   try {
-    const res = await api.post('/api/accounts', data)
+    const res = await accountApi.saveAccount(data)
     if (res.data.ok) {
       emit('saved')
       close()
@@ -159,15 +152,14 @@ async function submitManual() {
   }
 
   let code = form.code.trim()
-  // Try to extract code from URL if present
   const match = code.match(/[?&]code=([^&]+)/i)
   if (match && match[1]) {
     code = decodeURIComponent(match[1])
-    form.code = code // Update UI
+    form.code = code
   }
 
   const payload = {
-    id: props.editData?.id, // If editing
+    id: props.editData?.id,
     name: form.name,
     code,
     platform: form.platform,
@@ -182,144 +174,184 @@ function close() {
   emit('close')
 }
 
-watch(() => props.show, (newVal) => {
-  if (newVal) {
-    errorMessage.value = ''
-    if (props.editData) {
-      // Edit mode: Default to QR refresh, load code
-      activeTab.value = 'qr'
-      form.name = props.editData.name
-      form.code = props.editData.code || ''
-      form.platform = props.editData.platform || 'qq'
-      loadQRCode()
+watch(
+  () => props.show,
+  (newVal) => {
+    if (newVal) {
+      errorMessage.value = ''
+      if (props.editData) {
+        activeTab.value = 'qr'
+        form.name = props.editData.name
+        form.code = props.editData.code || ''
+        form.platform = props.editData.platform || 'qq'
+        loadQRCode()
+      }
+      else {
+        activeTab.value = 'qr'
+        form.name = ''
+        form.code = ''
+        form.platform = 'qq'
+        loadQRCode()
+      }
     }
     else {
-      // Add mode: Default to QR
-      activeTab.value = 'qr'
-      form.name = ''
-      form.code = ''
-      form.platform = 'qq'
-      loadQRCode()
+      stopQRCheck()
+      qrData.value = null
+      qrStatus.value = ''
     }
-  }
-  else {
-    // Reset when closed
-    stopQRCheck()
-    qrData.value = null
-    qrStatus.value = ''
-  }
-})
+  },
+)
 </script>
 
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div class="max-w-md w-full overflow-hidden rounded-lg bg-white shadow-xl dark:bg-gray-800">
-      <div class="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700">
-        <h3 class="text-lg font-semibold">
-          {{ editData ? '编辑账号' : '添加账号' }}
-        </h3>
-        <BaseButton variant="ghost" class="!p-1" @click="close">
-          <div class="i-carbon-close text-xl" />
-        </BaseButton>
+  <a-modal :open="show" :footer="null" :mask-closable="!loading" :width="420" destroy-on-hidden @cancel="close">
+    <template #title>
+      <div class="flex items-center gap-2">
+        <div :class="editData ? 'i-twemoji-memo' : 'i-twemoji-plus'" class="text-lg" />
+        <span>{{ editData ? '编辑账号' : '添加账号' }}</span>
+      </div>
+    </template>
+
+    <!-- Error -->
+    <div
+      v-if="errorMessage"
+      class="mb-4 flex items-center gap-2 rounded-lg px-3 py-2 text-base opacity-90 a-color-white a-bg-error"
+    >
+      <div class="i-twemoji-warning shrink-0 text-base" />
+      {{ errorMessage }}
+    </div>
+
+    <!-- Tab switcher -->
+    <div class="mb-4 flex items-center gap-1 rounded-lg p-0.5 a-bg-fill-tertiary">
+      <a-button
+        type="text"
+        class="flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-base transition-all"
+        :class="
+          activeTab === 'qr' ? 'a-bg-container a-color-primary-text font-semibold shadow-sm' : 'a-color-text-secondary'
+        "
+        @click="((activeTab = 'qr'), loadQRCode())"
+      >
+        <div class="i-twemoji-camera-with-flash text-base" />
+        {{ editData ? '扫码更新' : '扫码登录' }}
+      </a-button>
+      <a-button
+        type="text"
+        class="flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-base transition-all"
+        :class="
+          activeTab === 'manual'
+            ? 'a-bg-container a-color-primary-text font-semibold shadow-sm'
+            : 'a-color-text-secondary'
+        "
+        @click="((activeTab = 'manual'), stopQRCheck())"
+      >
+        <div class="i-twemoji-keyboard text-base" />
+        手动填码
+      </a-button>
+    </div>
+
+    <!-- QR Tab -->
+    <div v-if="activeTab === 'qr'" class="flex flex-col items-center gap-3">
+      <div class="text-sm a-color-text-tertiary">
+        使用手机QQ扫码，默认使用QQ昵称
       </div>
 
-      <div class="p-4">
-        <div v-if="errorMessage" class="mb-4 rounded bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-          {{ errorMessage }}
-        </div>
-        <!-- Tabs -->
-        <div class="mb-4 flex border-b border-gray-200 dark:border-gray-700">
-          <button
-            class="flex-1 py-2 text-center font-medium"
-            :class="activeTab === 'qr' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'"
-            @click="activeTab = 'qr'; loadQRCode()"
+      <div
+        class="relative overflow-hidden border-2 rounded-xl border-dashed p-2 transition-colors a-bg-container"
+        :class="
+          qrStatus === '登录成功!'
+            ? 'a-border a-border-success a-bg-container'
+            : 'a-border a-border-border a-bg-container'
+        "
+      >
+        <div v-if="qrData && (qrData.image || qrData.qrcode)">
+          <img
+            :src="
+              qrData.image
+                ? qrData.image.startsWith('data:')
+                  ? qrData.image
+                  : `data:image/png;base64,${qrData.image}`
+                : qrData.qrcode
+            "
+            class="h-52 w-52 rounded-lg"
           >
-            {{ editData ? '扫码更新' : '扫码登录' }}
-          </button>
-          <button
-            class="flex-1 py-2 text-center font-medium"
-            :class="activeTab === 'manual' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'"
-            @click="activeTab = 'manual'; stopQRCheck()"
-          >
-            手动填码
-          </button>
         </div>
-
-        <!-- QR Tab -->
-        <div v-if="activeTab === 'qr'" class="flex flex-col items-center justify-center py-4 space-y-4">
-          <div class="w-full text-center">
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-              扫码默认使用QQ昵称
-            </p>
-          </div>
-
-          <div v-if="qrData && (qrData.image || qrData.qrcode)" class="border rounded bg-white p-2">
-            <img :src="qrData.image ? (qrData.image.startsWith('data:') ? qrData.image : `data:image/png;base64,${qrData.image}`) : qrData.qrcode" class="h-48 w-48">
-          </div>
-          <div v-else class="h-48 w-48 flex items-center justify-center rounded bg-gray-100 text-gray-400 dark:bg-gray-700">
-            <div v-if="loading" i-svg-spinners-90-ring-with-bg class="text-3xl" />
-            <span v-else>二维码区域</span>
-          </div>
-          <p class="text-sm text-gray-600 dark:text-gray-400">
-            {{ qrStatus }}
-          </p>
-          <div class="flex gap-2">
-            <BaseButton variant="text" size="sm" @click="loadQRCode">
-              刷新二维码
-            </BaseButton>
-            <BaseButton
-              v-if="qrData?.url"
-              variant="text"
-              size="sm"
-              class="text-blue-600 md:hidden"
-              @click="openQRCodeLoginUrl"
-            >
-              跳转QQ登录
-            </BaseButton>
+        <div v-else class="h-52 w-52 flex flex-col items-center justify-center gap-2 rounded-lg a-bg-fill-tertiary">
+          <a-spin v-if="loading" />
+          <template v-else>
+            <div class="i-twemoji-framed-picture text-3xl opacity-30" />
+            <span class="text-sm a-color-text-tertiary">二维码区域</span>
+          </template>
+        </div>
+        <div
+          v-if="qrStatus === '登录成功!'"
+          class="absolute inset-0 flex items-center justify-center rounded-xl backdrop-blur-[1px] a-bg-primary-bg"
+        >
+          <div class="flex flex-col items-center gap-1">
+            <div class="i-twemoji-check-mark-button text-4xl" />
+            <span class="text-base font-bold a-color-primary-text">登录成功</span>
           </div>
         </div>
+      </div>
 
-        <!-- Manual Tab -->
-        <div v-if="activeTab === 'manual'" class="space-y-4">
-          <BaseInput
-            v-model="form.name"
-            label="备注名称"
-            placeholder="留空默认账号X"
-          />
+      <div class="flex items-center gap-1.5 text-base a-color-text-secondary">
+        <div v-if="qrStatus === '等待扫码...'" class="h-1.5 w-1.5 animate-pulse rounded-full a-bg-info" />
+        <div v-else-if="qrStatus.includes('失效')" class="i-twemoji-warning text-base" />
+        {{ qrStatus }}
+      </div>
 
-          <BaseTextarea
-            v-model="form.code"
-            label="Code"
-            placeholder="请输入登录 Code"
-            :rows="3"
-          />
+      <div class="flex items-center gap-2">
+        <a-button @click="loadQRCode">
+          <template #icon>
+            <div class="i-twemoji-counterclockwise-arrows-button text-base" />
+          </template>
+          刷新二维码
+        </a-button>
+        <a-button v-if="qrData?.url" class="md:hidden" @click="openQRCodeLoginUrl">
+          <template #icon>
+            <div class="i-twemoji-mobile-phone text-base" />
+          </template>
+          跳转QQ登录
+        </a-button>
+      </div>
+    </div>
 
-          <BaseSelect
-            v-model="form.platform"
-            label="平台"
+    <!-- Manual Tab -->
+    <div v-else>
+      <a-form layout="vertical">
+        <a-form-item label="备注名称">
+          <a-input v-model:value="form.name" placeholder="留空默认使用昵称">
+            <template #prefix>
+              <div class="i-twemoji-label text-base" />
+            </template>
+          </a-input>
+        </a-form-item>
+
+        <a-form-item label="Code">
+          <a-textarea v-model:value="form.code" :rows="3" placeholder="请输入登录 Code 或包含 code 的链接" />
+        </a-form-item>
+
+        <a-form-item label="平台">
+          <a-select
+            v-model:value="form.platform"
             :options="[
               { label: 'QQ小程序', value: 'qq' },
               { label: '微信小程序', value: 'wx' },
             ]"
           />
+        </a-form-item>
+      </a-form>
 
-          <div class="flex justify-end gap-2 pt-4">
-            <BaseButton
-              variant="outline"
-              @click="close"
-            >
-              取消
-            </BaseButton>
-            <BaseButton
-              variant="primary"
-              :loading="loading"
-              @click="submitManual"
-            >
-              {{ editData ? '保存' : '添加' }}
-            </BaseButton>
-          </div>
-        </div>
+      <div class="flex items-center justify-end gap-2 border-t border-t-solid pt-3 a-border-t-border-sec">
+        <a-button @click="close">
+          取消
+        </a-button>
+        <a-button type="primary" :loading="loading" @click="submitManual">
+          <template v-if="!loading" #icon>
+            <div class="i-twemoji-check-mark-button text-base" />
+          </template>
+          {{ editData ? '保存' : '添加' }}
+        </a-button>
       </div>
     </div>
-  </div>
+  </a-modal>
 </template>

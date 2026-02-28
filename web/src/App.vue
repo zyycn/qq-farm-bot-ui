@@ -1,10 +1,25 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { theme } from 'antdv-next'
+import { storeToRefs } from 'pinia'
+import { computed, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
-import ToastContainer from '@/components/ToastContainer.vue'
 import { useAppStore } from '@/stores/app'
 
 const appStore = useAppStore()
+const { isDark, themeTokens } = storeToRefs(appStore)
+
+const themeConfig = computed(() => ({
+  algorithm: isDark.value ? theme.darkAlgorithm : theme.defaultAlgorithm,
+  token: {
+    colorPrimary: themeTokens.value.colorPrimary,
+    colorSuccess: themeTokens.value.colorSuccess,
+    colorWarning: themeTokens.value.colorWarning,
+    colorError: themeTokens.value.colorError,
+    colorInfo: themeTokens.value.colorInfo,
+    colorLink: themeTokens.value.colorLink,
+    borderRadius: themeTokens.value.borderRadius,
+  },
+}))
 
 onMounted(() => {
   appStore.fetchTheme()
@@ -12,16 +27,25 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="h-screen w-screen overflow-hidden bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-200">
+  <a-config-provider :theme="themeConfig">
     <RouterView />
-    <ToastContainer />
-  </div>
+  </a-config-provider>
 </template>
 
 <style>
-/* Global styles */
 body {
   margin: 0;
   font-family: 'DM Sans', sans-serif;
+}
+
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition:
+    background-color 0.3s ease,
+    color 0.2s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease !important;
 }
 </style>

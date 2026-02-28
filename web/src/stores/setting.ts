@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import api from '@/api'
+import { settingsApi } from '@/api'
 
 export interface AutomationConfig {
   farm?: boolean
@@ -80,9 +80,7 @@ export const useSettingStore = defineStore('setting', () => {
       return
     loading.value = true
     try {
-      const { data } = await api.get('/api/settings', {
-        headers: { 'x-account-id': accountId },
-      })
+      const { data } = await settingsApi.fetchSettings()
       if (data && data.ok && data.data) {
         const d = data.data
         settings.value.plantingStrategy = d.strategy || 'preferred'
@@ -113,22 +111,11 @@ export const useSettingStore = defineStore('setting', () => {
     loading.value = true
     try {
       // 1. Save general settings
-      const settingsPayload = {
-        plantingStrategy: newSettings.plantingStrategy,
-        preferredSeedId: newSettings.preferredSeedId,
-        intervals: newSettings.intervals,
-        friendQuietHours: newSettings.friendQuietHours,
-      }
-
-      await api.post('/api/settings/save', settingsPayload, {
-        headers: { 'x-account-id': accountId },
-      })
+      await settingsApi.saveSettings(newSettings)
 
       // 2. Save automation settings
       if (newSettings.automation) {
-        await api.post('/api/automation', newSettings.automation, {
-          headers: { 'x-account-id': accountId },
-        })
+        await settingsApi.saveAutomation(newSettings.automation)
       }
 
       // Refresh settings
@@ -143,7 +130,7 @@ export const useSettingStore = defineStore('setting', () => {
   async function saveOfflineConfig(config: OfflineConfig) {
     loading.value = true
     try {
-      const { data } = await api.post('/api/settings/offline-reminder', config)
+      const { data } = await settingsApi.saveOfflineReminder(config)
       if (data && data.ok) {
         settings.value.offlineReminder = config
         return { ok: true }
@@ -158,7 +145,7 @@ export const useSettingStore = defineStore('setting', () => {
   async function changeAdminPassword(oldPassword: string, newPassword: string) {
     loading.value = true
     try {
-      const res = await api.post('/api/admin/change-password', { oldPassword, newPassword })
+      const res = await settingsApi.changePassword(oldPassword, newPassword)
       return res.data
     }
     finally {

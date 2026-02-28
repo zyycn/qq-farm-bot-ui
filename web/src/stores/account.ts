@@ -1,7 +1,7 @@
 import { useStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import api from '@/api'
+import { accountApi } from '@/api'
 
 export interface Account {
   id: string
@@ -33,7 +33,7 @@ export const useAccountStore = defineStore('account', () => {
     loading.value = true
     try {
       // api interceptor adds x-admin-token
-      const res = await api.get('/api/accounts')
+      const res = await accountApi.fetchAccounts()
       if (res.data.ok && res.data.data && res.data.data.accounts) {
         accounts.value = res.data.data.accounts
 
@@ -63,17 +63,17 @@ export const useAccountStore = defineStore('account', () => {
   }
 
   async function startAccount(id: string) {
-    await api.post(`/api/accounts/${id}/start`)
+    await accountApi.startAccount(id)
     await fetchAccounts()
   }
 
   async function stopAccount(id: string) {
-    await api.post(`/api/accounts/${id}/stop`)
+    await accountApi.stopAccount(id)
     await fetchAccounts()
   }
 
   async function deleteAccount(id: string) {
-    await api.delete(`/api/accounts/${id}`)
+    await accountApi.deleteAccount(id)
     if (currentAccountId.value === id) {
       currentAccountId.value = ''
     }
@@ -82,7 +82,7 @@ export const useAccountStore = defineStore('account', () => {
 
   async function fetchLogs() {
     try {
-      const res = await api.get('/api/account-logs?limit=100')
+      const res = await accountApi.fetchAccountLogs(100)
       if (Array.isArray(res.data)) {
         logs.value = res.data
       }
@@ -94,7 +94,7 @@ export const useAccountStore = defineStore('account', () => {
 
   async function addAccount(payload: any) {
     try {
-      await api.post('/api/accounts', payload)
+      await accountApi.saveAccount(payload)
       await fetchAccounts()
     }
     catch (e) {
@@ -106,7 +106,7 @@ export const useAccountStore = defineStore('account', () => {
   async function updateAccount(id: string, payload: any) {
     try {
       // core uses POST /api/accounts for both add and update (if id is present)
-      await api.post('/api/accounts', { ...payload, id })
+      await accountApi.saveAccount({ ...payload, id })
       await fetchAccounts()
     }
     catch (e) {

@@ -20,16 +20,11 @@ async function handleLogin() {
   error.value = ''
   try {
     const res = await authApi.login(password.value)
-    if (res.data.ok) {
-      token.value = res.data.data.token
-      router.push('/')
-    }
-    else {
-      error.value = res.data.error || '登录失败'
-    }
+    token.value = res.token
+    router.push('/')
   }
   catch (e: any) {
-    error.value = e.response?.data?.error || e.message || '登录异常'
+    error.value = e.message || '登录异常'
   }
   finally {
     loading.value = false

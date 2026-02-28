@@ -26,10 +26,10 @@ export const useFarmStore = defineStore('farm', () => {
       return
     loading.value = true
     try {
-      const { data } = await farmApi.fetchLands()
-      if (data && data.ok) {
-        lands.value = data.data.lands || []
-        summary.value = data.data.summary || {}
+      const res = await farmApi.fetchLands()
+      if (res) {
+        lands.value = res.lands || []
+        summary.value = res.summary || {}
       }
     }
     finally {
@@ -40,9 +40,8 @@ export const useFarmStore = defineStore('farm', () => {
   async function fetchSeeds(accountId: string) {
     if (!accountId)
       return
-    const { data } = await farmApi.fetchSeeds()
-    if (data && data.ok)
-      seeds.value = data.data || []
+    const res = await farmApi.fetchSeeds()
+    seeds.value = Array.isArray(res) ? res : []
   }
 
   async function operate(accountId: string, opType: string) {

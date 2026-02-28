@@ -99,13 +99,21 @@ function formatGiftProgress(gift: any) {
           <div
             class="h-7 w-7 flex flex-shrink-0 items-center justify-center rounded-md"
             :style="{
-              background: gift.doneToday ? 'var(--ant-color-primary-bg)' : gift.enabled ? 'var(--ant-color-fill-tertiary)' : 'var(--ant-color-fill-tertiary)',
+              background: gift.doneToday
+                ? 'var(--ant-color-primary-bg)'
+                : gift.enabled
+                  ? 'var(--ant-color-fill-tertiary)'
+                  : 'var(--ant-color-fill-tertiary)',
             }"
           >
             <div
               :class="getGiftIcon(gift.key)"
               :style="{
-                color: gift.doneToday ? 'var(--ant-color-success)' : gift.enabled ? 'var(--ant-color-info)' : 'var(--ant-color-text-tertiary)',
+                color: gift.doneToday
+                  ? 'var(--ant-color-success)'
+                  : gift.enabled
+                    ? 'var(--ant-color-info)'
+                    : 'var(--ant-color-text-tertiary)',
               }"
             />
           </div>

@@ -39,13 +39,13 @@ async function checkConnection() {
   try {
     const res = await authApi.ping()
     systemConnected.value = true
-    if (res.data.ok && res.data.data) {
-      if (res.data.data.uptime) {
-        serverUptimeBase.value = res.data.data.uptime
+    if (res) {
+      if (res.uptime) {
+        serverUptimeBase.value = res.uptime
         lastPingTime.value = Date.now()
       }
-      if (res.data.data.version) {
-        serverVersion.value = res.data.data.version
+      if (res.version) {
+        serverVersion.value = res.version
       }
     }
     const accountRef = currentAccount.value?.id || currentAccount.value?.uin
@@ -228,7 +228,7 @@ watch(
   <!-- Desktop sider -->
   <a-layout-sider
     class="hidden lg:block"
-    :width="256"
+    :width="230"
     :collapsed-width="72"
     :collapsed="sidebarCollapsed"
     theme="light"
@@ -240,7 +240,7 @@ watch(
         :class="sidebarCollapsed ? 'justify-center' : 'gap-2.5'"
       >
         <div class="i-twemoji-seedling shrink-0 text-xl" />
-        <span v-if="!sidebarCollapsed" class="text-lg font-bold a-color-text">QQ农场助手</span>
+        <span v-if="!sidebarCollapsed" class="whitespace-nowrap text-lg font-bold a-color-text">QQ农场助手</span>
       </div>
 
       <!-- Account (expanded) -->
@@ -378,6 +378,7 @@ watch(
     placement="left"
     :open="sidebarOpen"
     :size="280"
+    :closable="false"
     :styles="{ body: { padding: '0px' } }"
     @close="appStore.closeSidebar()"
   >

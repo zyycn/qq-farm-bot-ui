@@ -80,9 +80,8 @@ export const useSettingStore = defineStore('setting', () => {
       return
     loading.value = true
     try {
-      const { data } = await settingsApi.fetchSettings()
-      if (data && data.ok && data.data) {
-        const d = data.data
+      const d = await settingsApi.fetchSettings()
+      if (d) {
         settings.value.plantingStrategy = d.strategy || 'preferred'
         settings.value.preferredSeedId = d.preferredSeed || 0
         settings.value.intervals = d.intervals || {}
@@ -130,12 +129,12 @@ export const useSettingStore = defineStore('setting', () => {
   async function saveOfflineConfig(config: OfflineConfig) {
     loading.value = true
     try {
-      const { data } = await settingsApi.saveOfflineReminder(config)
-      if (data && data.ok) {
-        settings.value.offlineReminder = config
-        return { ok: true }
-      }
-      return { ok: false, error: '保存失败' }
+      await settingsApi.saveOfflineReminder(config)
+      settings.value.offlineReminder = config
+      return { ok: true }
+    }
+    catch (e: any) {
+      return { ok: false, error: e.message || '保存失败' }
     }
     finally {
       loading.value = false
@@ -145,8 +144,11 @@ export const useSettingStore = defineStore('setting', () => {
   async function changeAdminPassword(oldPassword: string, newPassword: string) {
     loading.value = true
     try {
-      const res = await settingsApi.changePassword(oldPassword, newPassword)
-      return res.data
+      await settingsApi.changePassword(oldPassword, newPassword)
+      return { ok: true }
+    }
+    catch (e: any) {
+      return { ok: false, error: e.message || '修改失败' }
     }
     finally {
       loading.value = false

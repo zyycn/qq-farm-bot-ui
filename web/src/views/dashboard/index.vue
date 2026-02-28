@@ -273,18 +273,19 @@ async function refreshBag(force = false) {
   await bagStore.fetchBag(currentAccountId.value)
 }
 
-async function refresh() {
+async function refresh(forceReloadLogs = false) {
   if (currentAccountId.value) {
     const acc = currentAccount.value
     if (!acc)
       return
 
+    // 首次加载、断线兜底时走 HTTP；连接正常时优先走 WS 实时推送
     if (!realtimeConnected.value) {
       await statusStore.fetchStatus(currentAccountId.value)
       await statusStore.fetchAccountLogs()
     }
 
-    if (hasActiveLogFilter.value || !realtimeConnected.value) {
+    if (forceReloadLogs || hasActiveLogFilter.value || !realtimeConnected.value) {
       await statusStore.fetchLogs(currentAccountId.value, {
         module: filter.module || undefined,
         event: filter.event || undefined,
@@ -293,9 +294,38 @@ async function refresh() {
       })
     }
 
+    // 仅在账号已运行且连接就绪后拉背包，避免启动阶段触发500
     await refreshBag()
   }
 }
+
+function onLogFilterChange() {
+  refresh(true)
+}
+
+function onLogSearchTrigger() {
+  refresh(true)
+}
+
+watch(currentAccountId, () => {
+  refresh()
+})
+
+watch(() => status.value?.connection?.connected, (connected) => {
+  if (connected)
+    refreshBag(true)
+})
+
+watch(() => JSON.stringify(status.value?.operations || {}), (next, prev) => {
+  if (!realtimeConnected.value || next === prev)
+    return
+  refreshBag()
+})
+
+watch(hasActiveLogFilter, (enabled) => {
+  statusStore.setRealtimeLogsEnabled(!enabled)
+  refresh(enabled)
+})
 
 watch(currentAccountId, () => {
   refresh()
@@ -331,20 +361,20 @@ function onLogScroll(e: Event) {
   autoScroll.value = isNearBottom
 }
 
-function onKeywordChange(e: Event) {
-  const v = (e.target as HTMLInputElement | null)?.value || ''
-  if (!v)
-    refresh()
+function scrollLogsToBottom(force = false) {
+  nextTick(() => {
+    if (!logContainer.value)
+      return
+    if (!force && !autoScroll.value)
+      return
+    logContainer.value.scrollTop = logContainer.value.scrollHeight
+  })
 }
 
 watch(
   allLogs,
   () => {
-    nextTick(() => {
-      if (logContainer.value && autoScroll.value) {
-        logContainer.value.scrollTop = logContainer.value.scrollHeight
-      }
-    })
+    scrollLogsToBottom()
   },
   { deep: true },
 )
@@ -352,6 +382,8 @@ watch(
 onMounted(() => {
   statusStore.setRealtimeLogsEnabled(!hasActiveLogFilter.value)
   refresh()
+  autoScroll.value = true
+  scrollLogsToBottom(true)
 })
 
 useIntervalFn(refresh, 10000)
@@ -361,7 +393,7 @@ useIntervalFn(updateCountdowns, 1000)
 <template>
   <div class="flex flex-col gap-3 md:h-full">
     <!-- Status Cards -->
-    <div class="grid grid-cols-1 gap-3 lg:grid-cols-3 sm:grid-cols-2">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
       <!-- Account & Exp -->
       <a-card variant="borderless" size="small" :classes="{ body: '!px-4 !py-3.5' }">
         <div class="flex items-center justify-between">
@@ -499,21 +531,21 @@ useIntervalFn(updateCountdowns, 1000)
                 :options="modules"
                 size="small"
                 style="width: 7rem"
-                @change="refresh"
+                @change="onLogFilterChange"
               />
               <a-select
                 v-model:value="filter.event"
                 :options="events"
                 size="small"
                 style="width: 7rem"
-                @change="refresh"
+                @change="onLogFilterChange"
               />
               <a-select
                 v-model:value="filter.isWarn"
                 :options="logLevels"
                 size="small"
                 style="width: 7rem"
-                @change="refresh"
+                @change="onLogFilterChange"
               />
               <a-input
                 v-model:value="filter.keyword"
@@ -522,9 +554,9 @@ useIntervalFn(updateCountdowns, 1000)
                 size="small"
                 style="width: 7rem"
                 @press-enter="refresh"
-                @change="onKeywordChange"
+                @change="onLogSearchTrigger"
               />
-              <a-button type="primary" size="small" @click="refresh">
+              <a-button type="primary" size="small" @click="onLogSearchTrigger">
                 <template #icon>
                   <SearchOutlined />
                 </template>

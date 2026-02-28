@@ -28,13 +28,13 @@ export const useBagStore = defineStore('bag', () => {
     loading.value = true
     try {
       const res = await bagApi.fetchBag()
-      if (res.data.ok && res.data.data) {
-        allItems.value = Array.isArray(res.data.data.items) ? res.data.data.items : []
+      if (res) {
+        allItems.value = Array.isArray(res.items) ? res.items : []
       }
     }
     catch (e) {
       lastErrorAt.value = Date.now()
-      console.error('fetchBag failed:', e)
+      console.error('获取背包失败:', e)
     }
     finally {
       loading.value = false

@@ -116,8 +116,8 @@ export const useAppStore = defineStore('app', () => {
   async function fetchTheme() {
     try {
       const res = await settingsApi.fetchSettings()
-      if (res.data.ok && res.data.data.ui) {
-        const t = res.data.data.ui.theme
+      if (res?.ui) {
+        const t = res.ui.theme
         isDark.value = t === 'dark'
         localStorage.setItem(THEME_KEY, t)
       }
@@ -134,7 +134,7 @@ export const useAppStore = defineStore('app', () => {
       localStorage.setItem(THEME_KEY, t)
     }
     catch (e) {
-      console.error('Failed to set theme:', e)
+      console.error('设置主题失败:', e)
     }
   }
 

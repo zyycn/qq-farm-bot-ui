@@ -28,37 +28,35 @@ const { pause: stopQRCheck, resume: startQRCheck } = useIntervalFn(
       return
     try {
       const res = await accountApi.checkQR(qrData.value.code)
-      if (res.data.ok) {
-        const status = res.data.data.status
-        if (status === 'OK') {
-          stopQRCheck()
-          qrStatus.value = '登录成功!'
-          const { uin, code: authCode, nickname } = res.data.data
+      const status = res.status
+      if (status === 'OK') {
+        stopQRCheck()
+        qrStatus.value = '登录成功!'
+        const { uin, code: authCode, nickname } = res
 
-          let accName = form.name.trim()
-          if (!accName) {
-            accName = nickname || (uin ? String(uin) : '扫码账号')
-          }
+        let accName = form.name.trim()
+        if (!accName) {
+          accName = nickname || (uin ? String(uin) : '扫码账号')
+        }
 
-          await addAccount({
-            id: props.editData?.id,
-            uin,
-            code: authCode,
-            loginType: 'qr',
-            name: props.editData ? props.editData.name || accName : accName,
-            platform: 'qq',
-          })
-        }
-        else if (status === 'Used') {
-          qrStatus.value = '二维码已失效'
-          stopQRCheck()
-        }
-        else if (status === 'Wait') {
-          qrStatus.value = '等待扫码...'
-        }
-        else {
-          qrStatus.value = `错误: ${res.data.data.error}`
-        }
+        await addAccount({
+          id: props.editData?.id,
+          uin,
+          code: authCode,
+          loginType: 'qr',
+          name: props.editData ? props.editData.name || accName : accName,
+          platform: 'qq',
+        })
+      }
+      else if (status === 'Used') {
+        qrStatus.value = '二维码已失效'
+        stopQRCheck()
+      }
+      else if (status === 'Wait') {
+        qrStatus.value = '等待扫码...'
+      }
+      else {
+        qrStatus.value = `错误: ${res.error || '未知'}`
       }
     }
     catch (e) {
@@ -77,17 +75,12 @@ async function loadQRCode() {
   errorMessage.value = ''
   try {
     const res = await accountApi.createQR()
-    if (res.data.ok) {
-      qrData.value = res.data.data
-      qrStatus.value = '请使用手机QQ扫码'
-      startQRCheck()
-    }
-    else {
-      qrStatus.value = `获取失败: ${res.data.error}`
-    }
+    qrData.value = res
+    qrStatus.value = '请使用手机QQ扫码'
+    startQRCheck()
   }
-  catch (e) {
-    qrStatus.value = '获取失败'
+  catch (e: any) {
+    qrStatus.value = `获取失败: ${e.message}`
     console.error(e)
   }
   finally {
@@ -113,7 +106,7 @@ function openQRCodeLoginUrl() {
     window.location.href = qqDeepLink
   }
   catch (e) {
-    console.error('Deep link error:', e)
+    console.error('深度链接错误:', e)
     window.location.href = url
   }
 }
@@ -122,17 +115,12 @@ async function addAccount(data: any) {
   loading.value = true
   errorMessage.value = ''
   try {
-    const res = await accountApi.saveAccount(data)
-    if (res.data.ok) {
-      emit('saved')
-      close()
-    }
-    else {
-      errorMessage.value = `保存失败: ${res.data.error}`
-    }
+    await accountApi.saveAccount(data)
+    emit('saved')
+    close()
   }
   catch (e: any) {
-    errorMessage.value = `保存失败: ${e.response?.data?.error || e.message}`
+    errorMessage.value = `保存失败: ${e.message}`
   }
   finally {
     loading.value = false

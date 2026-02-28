@@ -47,8 +47,8 @@ async function loadAnalytics() {
   loading.value = true
   try {
     const res = await analyticsApi.fetchAnalytics(sortKey.value)
-    const data = res.data.data
-    if (Array.isArray(data)) {
+    const data = Array.isArray(res) ? res : []
+    if (data.length > 0) {
       list.value = data
       const metricMap: Record<string, string> = {
         exp: 'expPerHour',
@@ -193,7 +193,7 @@ function getHighlightColor(key: string): string {
               class="rounded-md px-2.5 py-1 text-sm transition-all"
               :class="
                 sortKey === opt.value
-                  ? 'a-bg-container a-color-primary-text font-semibold shadow-sm a-bg-primary-bg'
+                  ? 'a-bg-container a-color-primary-text font-semibold shadow-sm a-bg-primary-bg hover:!a-bg-primary-bg hover:!a-color-primary-text'
                   : 'a-color-text-secondary'
               "
               @click="sortKey = opt.value"
@@ -229,7 +229,7 @@ function getHighlightColor(key: string): string {
             <template v-if="column.key === 'rank'">
               <div v-if="(currentPage - 1) * pageSize + index < 3" class="flex items-center justify-center">
                 <div
-                  class="text-base"
+                  class="text-2xl"
                   :class="[
                     (currentPage - 1) * pageSize + index === 0 ? 'i-twemoji-1st-place-medal' : '',
                     (currentPage - 1) * pageSize + index === 1 ? 'i-twemoji-2nd-place-medal' : '',
@@ -237,7 +237,7 @@ function getHighlightColor(key: string): string {
                   ]"
                 />
               </div>
-              <span v-else class="text-sm a-color-text-tertiary">{{ (currentPage - 1) * pageSize + index + 1 }}</span>
+              <span v-else class="text-base a-color-text-tertiary">{{ (currentPage - 1) * pageSize + index + 1 }}</span>
             </template>
 
             <template v-else-if="column.key === 'name'">

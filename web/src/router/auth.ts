@@ -1,6 +1,6 @@
 import type { Router } from 'vue-router'
 import { useStorage } from '@vueuse/core'
-import axios from 'axios'
+import api from '@/api/request'
 
 const adminToken = useStorage('admin_token', '')
 let validatedToken = ''
@@ -17,14 +17,9 @@ async function ensureTokenValid() {
   if (validatingPromise)
     return validatingPromise
 
-  validatingPromise = axios.get('/api/auth/validate', {
-    headers: { 'x-admin-token': token },
-    timeout: 6000,
-  }).then((res) => {
-    const ok = !!(res.data && res.data.ok)
-    if (ok)
-      validatedToken = token
-    return ok
+  validatingPromise = api.get('/api/auth/validate').then(() => {
+    validatedToken = token
+    return true
   }).catch(() => false).finally(() => {
     validatingPromise = null
   })

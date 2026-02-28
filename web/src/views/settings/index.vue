@@ -304,7 +304,7 @@ watchEffect(async () => {
   if (sortBy && currentAccountId.value) {
     try {
       const res = await analyticsApi.fetchAnalytics(sortBy)
-      const rankings: any[] = res.data.ok ? res.data.data || [] : []
+      const rankings: any[] = Array.isArray(res) ? res : []
       const availableIds = new Set(available.map(s => s.seedId))
       const match = rankings.find(r => availableIds.has(Number(r.seedId)))
       if (match) {
@@ -399,8 +399,7 @@ async function handleSaveOffline() {
           <a-avatar
             :size="44"
             :src="currentAccountAvatar"
-            class="shrink-0 ring-2"
-            style="--un-ring-color: var(--ant-color-primary-bg)"
+            class="shrink-0 bg-green-2 ring-2"
           >
             <template #icon>
               <div class="i-twemoji-farmer text-xl" />
@@ -409,8 +408,6 @@ async function handleSaveOffline() {
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2">
               <span class="truncate text-base font-bold a-color-text">{{ currentAccountName }}</span>
-              <a-badge v-if="currentAccount?.running" status="success" text="运行中" />
-              <a-badge v-else status="default" text="未运行" />
             </div>
             <div class="mt-0.5 text-sm a-color-text-tertiary">
               UIN: {{ currentAccountUin || '-' }}

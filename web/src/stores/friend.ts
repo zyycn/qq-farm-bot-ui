@@ -67,9 +67,7 @@ export const useFriendStore = defineStore('friend', () => {
     loading.value = true
     try {
       const res = await friendApi.fetchFriends()
-      if (res.data.ok) {
-        friends.value = res.data.data || []
-      }
+      friends.value = res || []
     }
     finally {
       loading.value = false
@@ -81,9 +79,7 @@ export const useFriendStore = defineStore('friend', () => {
       return
     try {
       const res = await friendApi.fetchBlacklist()
-      if (res.data.ok) {
-        blacklist.value = res.data.data || []
-      }
+      blacklist.value = res || []
     }
     catch { /* ignore */ }
   }
@@ -92,9 +88,7 @@ export const useFriendStore = defineStore('friend', () => {
     if (!accountId || !gid)
       return
     const res = await friendApi.toggleBlacklist(gid)
-    if (res.data.ok) {
-      blacklist.value = res.data.data || []
-    }
+    blacklist.value = res || []
   }
 
   async function fetchFriendLands(accountId: string, friendId: string) {
@@ -103,12 +97,10 @@ export const useFriendStore = defineStore('friend', () => {
     friendLandsLoading.value[friendId] = true
     try {
       const res = await friendApi.fetchFriendLands(friendId)
-      if (res.data.ok) {
-        const lands = res.data.data.lands || []
-        const summary = res.data.data.summary || null
-        friendLands.value[friendId] = lands
-        syncFriendPlantSummary(friendId, lands, summary)
-      }
+      const lands = res?.lands || []
+      const summary = res?.summary ?? null
+      friendLands.value[friendId] = lands
+      syncFriendPlantSummary(friendId, lands, summary)
     }
     finally {
       friendLandsLoading.value[friendId] = false

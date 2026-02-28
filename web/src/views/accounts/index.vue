@@ -99,15 +99,9 @@ function getDisplayName(acc: any) {
           暂无账号
         </div>
         <div class="mt-1 text-sm a-color-text-tertiary">
-          添加一个QQ账号开始自动化管理农场
+          添加一个账号开始自动化管理农场
         </div>
       </div>
-      <a-button type="primary" size="large" @click="openAddModal">
-        <template #icon>
-          <div class="i-twemoji-seedling text-base" />
-        </template>
-        立即添加
-      </a-button>
     </div>
 
     <!-- Account Cards -->

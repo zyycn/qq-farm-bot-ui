@@ -52,7 +52,7 @@ function logout() {
         </a-button>
       </a-layout-header>
 
-      <a-layout-content class="custom-scrollbar overflow-y-auto p-1 md:p-3 sm:p-2">
+      <a-layout-content class="overflow-y-auto p-1 md:p-3 sm:p-2">
         <RouterView v-slot="{ Component, route }">
           <Transition name="slide-fade" mode="out-in">
             <component :is="Component" :key="route.path" />
@@ -77,20 +77,5 @@ function logout() {
 .slide-fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--ant-color-fill, rgba(156, 163, 175, 0.3));
-  border-radius: 3px;
-}
-.custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background-color: var(--ant-color-text-tertiary, rgba(156, 163, 175, 0.5));
 }
 </style>

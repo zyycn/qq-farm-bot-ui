@@ -177,14 +177,9 @@ export const useStatusStore = defineStore('status', () => {
       return
     loading.value = true
     try {
-      const { data } = await statusApi.fetchStatus()
-      if (data.ok) {
-        status.value = normalizeStatusPayload(data.data)
-        error.value = ''
-      }
-      else {
-        error.value = data.error
-      }
+      const res = await statusApi.fetchStatus()
+      status.value = normalizeStatusPayload(res)
+      error.value = ''
     }
     catch (e: any) {
       error.value = e.message
@@ -198,11 +193,9 @@ export const useStatusStore = defineStore('status', () => {
     if (!accountId && options.accountId !== 'all')
       return
     try {
-      const { data } = await statusApi.fetchLogs(accountId, options)
-      if (data.ok) {
-        logs.value = data.data
-        error.value = ''
-      }
+      const res = await statusApi.fetchLogs(accountId, options)
+      logs.value = res || []
+      error.value = ''
     }
     catch (e: any) {
       console.error(e)
@@ -213,10 +206,8 @@ export const useStatusStore = defineStore('status', () => {
     if (!accountId)
       return
     try {
-      const { data } = await statusApi.fetchDailyGifts()
-      if (data.ok) {
-        dailyGifts.value = data.data
-      }
+      const res = await statusApi.fetchDailyGifts()
+      dailyGifts.value = res || null
     }
     catch (e) {
       console.error('获取每日奖励失败', e)

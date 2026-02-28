@@ -51,8 +51,8 @@ export const useAccountStore = defineStore('account', () => {
     try {
       // api interceptor adds x-admin-token
       const res = await accountApi.fetchAccounts()
-      if (res.data.ok && res.data.data && res.data.data.accounts) {
-        accounts.value = res.data.data.accounts
+      if (res && res.accounts) {
+        accounts.value = res.accounts
 
         // Auto-select first account if none selected or selected not found
         if (accounts.value.length > 0) {

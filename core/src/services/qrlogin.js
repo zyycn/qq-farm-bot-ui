@@ -61,7 +61,7 @@ class QRLoginSession {
 
             return { qrsig, qrcode: `data:image/png;base64,${qrcodeBase64}`, url };
         } catch (error) {
-            console.error('Request QRCode Error:', error.message);
+            console.error('请求二维码失败:', error.message);
             throw error;
         }
     }
@@ -118,7 +118,7 @@ class QRLoginSession {
                 cookie: response.headers['set-cookie']
             };
         } catch (error) {
-            console.error('Check Status Error:', error.message);
+            console.error('检查状态失败:', error.message);
             throw error;
         }
     }
@@ -171,7 +171,7 @@ class MiniProgramLoginSession {
                 image,
             };
         } catch (error) {
-            console.error('MP Request Login Code Error:', error.message);
+            console.error('小程序请求登录码失败:', error.message);
             throw error;
         }
     }
@@ -198,7 +198,7 @@ class MiniProgramLoginSession {
 
             return { status: 'Error', msg: `Code: ${resCode}` };
         } catch (error) {
-            console.error('MP Query Status Error:', error.message);
+            console.error('小程序查询状态失败:', error.message);
             throw error;
         }
     }
@@ -217,7 +217,7 @@ class MiniProgramLoginSession {
             const { code } = response.data;
             return code || '';
         } catch (error) {
-            console.error('MP Get Auth Code Error:', error.message);
+            console.error('小程序获取授权码失败:', error.message);
             return '';
         }
     }

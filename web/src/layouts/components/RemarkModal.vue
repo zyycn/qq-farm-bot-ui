@@ -34,17 +34,12 @@ async function save() {
       name: name.value,
     }
 
-    const res = await accountApi.saveAccount(payload)
-    if (res.data.ok) {
-      emit('saved')
-      emit('close')
-    }
-    else {
-      errorMessage.value = `保存失败: ${res.data.error}`
-    }
+    await accountApi.saveAccount(payload)
+    emit('saved')
+    emit('close')
   }
   catch (e: any) {
-    errorMessage.value = `保存失败: ${e.response?.data?.error || e.message}`
+    errorMessage.value = `保存失败: ${e.message}`
   }
   finally {
     loading.value = false

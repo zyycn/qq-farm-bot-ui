@@ -1,105 +1,63 @@
 <script setup lang="ts">
-import { useIntervalFn } from '@vueuse/core'
-import { storeToRefs } from 'pinia'
-import { onMounted, ref, watch } from 'vue'
-import { useAccountStore } from '@/stores/account'
-import { useBagStore } from '@/stores/bag'
-import { useStatusStore } from '@/stores/status'
+import { ref } from 'vue'
 
-const accountStore = useAccountStore()
-const bagStore = useBagStore()
-const statusStore = useStatusStore()
-const { currentAccountId, currentAccount } = storeToRefs(accountStore)
-const { items, loading: bagLoading } = storeToRefs(bagStore)
-const { status, loading: statusLoading, error: statusError, realtimeConnected } = storeToRefs(statusStore)
+defineProps<{
+  items: any[]
+}>()
 
 const imageErrors = ref<Record<string | number, boolean>>({})
 
-async function loadBag() {
-  if (currentAccountId.value) {
-    const acc = currentAccount.value
-    if (!acc)
-      return
-    if (!realtimeConnected.value)
-      await statusStore.fetchStatus(currentAccountId.value)
-    if (acc.running && status.value?.connection?.connected) {
-      bagStore.fetchBag(currentAccountId.value)
-    }
-    imageErrors.value = {}
-  }
+function onImageError(id: string | number) {
+  imageErrors.value[id] = true
 }
-
-onMounted(() => loadBag())
-watch(currentAccountId, () => loadBag())
-useIntervalFn(loadBag, 60000)
 </script>
 
 <template>
-  <div>
-    <div class="mb-4 flex items-center justify-between">
-      <div class="flex items-center gap-2 text-lg font-bold a-color-text">
-        <div class="i-carbon-inventory-management a-color-info" />
+  <a-card
+    variant="borderless"
+    size="small"
+    class="flex-1 overflow-hidden"
+    :classes="{ body: '!p-3 !h-full !flex !flex-col !overflow-hidden' }"
+  >
+    <div class="mb-2 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-base font-bold a-color-text">
+        <div class="i-twemoji-backpack text-base" />
         背包
       </div>
-      <span v-if="items.length" class="text-base a-color-text-tertiary">共 {{ items.length }} 种物品</span>
+      <span v-if="items.length" class="text-sm a-color-text-tertiary">{{ items.length }} 种</span>
     </div>
-
-    <a-spin v-if="bagLoading || statusLoading" class="py-12 !block" />
-
-    <a-card v-else-if="!currentAccountId" variant="borderless">
-      <a-empty description="请选择账号后查看背包" />
-    </a-card>
-
-    <a-alert v-else-if="statusError" type="error" show-icon :message="statusError" class="mb-4" />
-
-    <a-card v-else-if="!status?.connection?.connected" variant="borderless">
-      <a-empty description="账号未登录，请先运行账号或检查网络连接" />
-    </a-card>
-
-    <a-card v-else-if="items.length === 0" variant="borderless">
-      <a-empty description="无可展示物品" />
-    </a-card>
-
-    <div v-else class="grid grid-cols-2 gap-3 lg:grid-cols-5 md:grid-cols-4 sm:grid-cols-3 xl:grid-cols-6">
-      <a-card
-        v-for="item in items"
-        :key="item.id"
-        variant="borderless"
-        size="small"
-        hoverable
-        :classes="{ body: '!p-3 !flex !flex-col !items-center !min-h-[180px]' }"
-      >
-        <span class="self-start text-xs font-mono a-color-text-tertiary">#{{ item.id }}</span>
-
-        <div class="my-2 h-14 w-14 flex items-center justify-center rounded-full a-bg-fill-tertiary">
-          <img
-            v-if="item.image && !imageErrors[item.id]"
-            :src="item.image"
-            :alt="item.name"
-            class="max-h-full max-w-full object-contain"
-            loading="lazy"
-            @error="imageErrors[item.id] = true"
+    <div class="min-h-0 flex-1 overflow-y-auto">
+      <a-empty v-if="!items.length" description="背包空空" :image-style="{ height: '32px' }" />
+      <div v-else class="space-y-1">
+        <div
+          v-for="item in items"
+          :key="item.id"
+          class="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 a-bg-fill-tertiary"
+        >
+          <div
+            class="h-8 w-8 flex shrink-0 items-center justify-center overflow-hidden rounded-lg a-bg-container"
           >
-          <span v-else class="text-xl font-bold a-color-text-tertiary">{{ (item.name || '物').slice(0, 1) }}</span>
+            <img
+              v-if="item.image && !imageErrors[item.id]"
+              :src="item.image"
+              class="h-6 w-6 object-contain"
+              loading="lazy"
+              @error="onImageError(item.id)"
+            >
+            <span v-else class="text-sm font-bold a-color-text-tertiary">{{
+              (item.name || '物').slice(0, 1)
+            }}</span>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="truncate text-sm font-medium leading-tight a-color-text">
+              {{ item.name || `物品${item.id}` }}
+            </div>
+            <div class="text-xs a-color-text-tertiary">
+              {{ item.hoursText || `x${item.count || 0}` }}
+            </div>
+          </div>
         </div>
-
-        <div class="mb-1 w-full truncate text-center text-base font-bold a-color-text" :title="item.name">
-          {{ item.name || `物品${item.id}` }}
-        </div>
-
-        <div class="flex flex-col items-center gap-0.5 text-xs a-color-text-tertiary">
-          <span v-if="item.uid">UID: {{ item.uid }}</span>
-          <span>
-            类型: {{ item.itemType || 0 }}
-            <template v-if="item.level > 0"> · Lv{{ item.level }}</template>
-            <template v-if="item.price > 0"> · {{ item.price }}金</template>
-          </span>
-        </div>
-
-        <div class="mt-auto pt-1 text-base font-medium" :class="item.hoursText ? 'a-color-info' : 'a-color-text'">
-          {{ item.hoursText || `x${item.count || 0}` }}
-        </div>
-      </a-card>
+      </div>
     </div>
-  </div>
+  </a-card>
 </template>

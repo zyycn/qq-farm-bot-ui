@@ -1,13 +1,14 @@
 import type { RouteRecordRaw } from 'vue-router'
+import { ROUTE_NAMES, ROUTE_PATHS } from './constants'
 
 const routes: RouteRecordRaw[] = [
   {
-    path: '/',
+    path: ROUTE_PATHS.ROOT,
     component: () => import('@/layouts/index.vue'),
     children: [
       {
         path: '',
-        name: 'dashboard',
+        name: ROUTE_NAMES.DASHBOARD,
         component: () => import('@/views/dashboard/index.vue'),
         meta: { label: '概览', icon: 'i-twemoji-house-with-garden' },
       },
@@ -44,8 +45,8 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   {
-    path: '/login',
-    name: 'login',
+    path: ROUTE_PATHS.LOGIN,
+    name: ROUTE_NAMES.LOGIN,
     component: () => import('@/views/login/index.vue'),
   },
 ]

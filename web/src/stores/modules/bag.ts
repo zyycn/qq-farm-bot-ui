@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { bagApi } from '@/api'
-
-const BAG_ERROR_COOLDOWN_MS = 15_000
+import { BAG_DASHBOARD_ITEM_IDS, BAG_ERROR_COOLDOWN_MS, BAG_HIDDEN_ITEM_IDS } from '../constants'
 
 export const useBagStore = defineStore('bag', () => {
   const allItems = ref<any[]>([])
@@ -10,14 +9,11 @@ export const useBagStore = defineStore('bag', () => {
   const lastErrorAt = ref(0)
 
   const items = computed(() => {
-    // Filter out hidden items (e.g. coins, coupons, exp which are shown in dashboard)
-    const hiddenIds = new Set([1, 1001, 1002, 1101, 1011, 1012, 3001, 3002])
-    return allItems.value.filter((it: any) => !hiddenIds.has(Number(it.id || 0)))
+    return allItems.value.filter((it: any) => !BAG_HIDDEN_ITEM_IDS.has(Number(it.id || 0)))
   })
 
   const dashboardItems = computed(() => {
-    const targetIds = new Set([1011, 1012, 3001, 3002])
-    return allItems.value.filter((it: any) => targetIds.has(Number(it.id || 0)))
+    return allItems.value.filter((it: any) => BAG_DASHBOARD_ITEM_IDS.has(Number(it.id || 0)))
   })
 
   async function fetchBag(accountId: string) {

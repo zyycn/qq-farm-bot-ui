@@ -4,8 +4,8 @@ import { defineStore } from 'pinia'
 import { io } from 'socket.io-client'
 import { ref } from 'vue'
 import { statusApi } from '@/api'
+import { ACCOUNT_LOGS_MAX_LENGTH, LOGS_MAX_LENGTH, SOCKET_PATH } from '../constants'
 
-// Define interfaces for better type checking
 interface DailyGift {
   key: string
   label: string
@@ -54,15 +54,15 @@ export const useStatusStore = defineStore('status', () => {
   function pushRealtimeLog(entry: any) {
     const next = normalizeLogEntry(entry)
     logs.value.push(next)
-    if (logs.value.length > 1000)
-      logs.value = logs.value.slice(-1000)
+    if (logs.value.length > LOGS_MAX_LENGTH)
+      logs.value = logs.value.slice(-LOGS_MAX_LENGTH)
   }
 
   function pushRealtimeAccountLog(entry: any) {
     const next = (entry && typeof entry === 'object') ? entry : {}
     accountLogs.value.push(next)
-    if (accountLogs.value.length > 300)
-      accountLogs.value = accountLogs.value.slice(-300)
+    if (accountLogs.value.length > ACCOUNT_LOGS_MAX_LENGTH)
+      accountLogs.value = accountLogs.value.slice(-ACCOUNT_LOGS_MAX_LENGTH)
   }
 
   function handleRealtimeStatus(payload: any) {
@@ -103,7 +103,7 @@ export const useStatusStore = defineStore('status', () => {
       return socket
 
     socket = io('/', {
-      path: '/socket.io',
+      path: SOCKET_PATH,
       autoConnect: false,
       transports: ['websocket'],
       auth: {

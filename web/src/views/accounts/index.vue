@@ -5,7 +5,8 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AccountModal from '@/components/AccountModal.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
-import { getPlatformIcon, useAccountStore } from '@/stores/account'
+import QqAvatar from '@/components/QqAvatar.vue'
+import { useAccountStore } from '@/stores'
 
 const router = useRouter()
 const accountStore = useAccountStore()
@@ -62,10 +63,6 @@ async function toggleAccount(account: any) {
 
 function handleSaved() {
   accountStore.fetchAccounts()
-}
-
-function getAvatar(acc: any) {
-  return acc.uin ? `https://q1.qlogo.cn/g?b=qq&nk=${acc.uin}&s=100` : undefined
 }
 
 function getDisplayName(acc: any) {
@@ -134,28 +131,13 @@ function getDisplayName(acc: any) {
           <!-- Body -->
           <div class="px-4 py-3">
             <div class="flex items-center gap-3">
-              <a-avatar
-                :size="44"
-                :src="getAvatar(acc)"
-                class="shrink-0 bg-green-2 ring-2"
-              >
-                <template #icon>
-                  <div class="i-twemoji-farmer text-xl" />
-                </template>
-              </a-avatar>
+              <QqAvatar :uin="acc.uin" :size="44" ring :platform="acc.platform" />
               <div class="min-w-0 flex flex-1 flex-col gap-1.5">
                 <div class="truncate text-base font-bold a-color-text">
                   {{ getDisplayName(acc) }}
                 </div>
-                <div class="mt-0.5 flex items-center gap-1.5">
-                  <div
-                    v-if="getPlatformIcon(acc.platform)"
-                    class="shrink-0 text-sm text-primary"
-                    :class="getPlatformIcon(acc.platform)"
-                  />
-                  <span class="text-sm a-color-text-tertiary">
-                    {{ acc.uin || '未绑定' }}
-                  </span>
+                <div class="mt-0.5 text-sm a-color-text-tertiary">
+                  {{ acc.uin || '未绑定' }}
                 </div>
               </div>
             </div>

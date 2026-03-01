@@ -3,7 +3,7 @@ import { theme } from 'antdv-next'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { RouterView } from 'vue-router'
-import { useAppStore } from '@/stores/app'
+import { useAppStore } from '@/stores'
 
 const appStore = useAppStore()
 const { isDark, themeTokens } = storeToRefs(appStore)

@@ -1,37 +1,10 @@
+import type { GlobalToken } from 'antdv-next'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { settingsApi } from '@/api'
+import { SIDEBAR_COLLAPSED_KEY, THEME_KEY } from '../constants'
 
-const THEME_KEY = 'ui_theme'
-
-export interface ThemeTokens {
-  colorPrimary: string
-  colorPrimaryBg: string
-  colorPrimaryBgHover: string
-  colorPrimaryText: string
-  colorSuccess: string
-  colorWarning: string
-  colorError: string
-  colorInfo: string
-  colorLink: string
-  borderRadius: number
-  colorBgContainer: string
-  colorBgLayout: string
-  colorBgElevated: string
-  colorBgSpotlight: string
-  colorText: string
-  colorTextSecondary: string
-  colorTextTertiary: string
-  colorTextQuaternary: string
-  colorBorder: string
-  colorBorderSecondary: string
-  colorFill: string
-  colorFillSecondary: string
-  colorFillTertiary: string
-  colorFillQuaternary: string
-}
-
-const lightTokens: ThemeTokens = {
+const lightTokens: Partial<GlobalToken> = {
   colorPrimary: '#22c55e',
   colorPrimaryBg: 'rgba(34, 197, 94, 0.08)',
   colorPrimaryBgHover: 'rgba(34, 197, 94, 0.15)',
@@ -58,7 +31,7 @@ const lightTokens: ThemeTokens = {
   colorFillQuaternary: 'rgba(0, 0, 0, 0.01)',
 }
 
-const darkTokens: ThemeTokens = {
+const darkTokens: Partial<GlobalToken> = {
   colorPrimary: '#4ade80',
   colorPrimaryBg: 'rgba(74, 222, 128, 0.1)',
   colorPrimaryBgHover: 'rgba(74, 222, 128, 0.18)',
@@ -87,10 +60,10 @@ const darkTokens: ThemeTokens = {
 
 export const useAppStore = defineStore('app', () => {
   const sidebarOpen = ref(false)
-  const sidebarCollapsed = ref(localStorage.getItem('sidebar_collapsed') === '1')
+  const sidebarCollapsed = ref(localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1')
   const isDark = ref(localStorage.getItem(THEME_KEY) === 'dark')
 
-  const themeTokens = computed<ThemeTokens>(() => isDark.value ? darkTokens : lightTokens)
+  const themeTokens = computed<Partial<GlobalToken>>(() => isDark.value ? darkTokens : lightTokens)
 
   function toggleSidebar() {
     sidebarOpen.value = !sidebarOpen.value
@@ -106,7 +79,7 @@ export const useAppStore = defineStore('app', () => {
 
   function setSidebarCollapsed(val: boolean) {
     sidebarCollapsed.value = val
-    localStorage.setItem('sidebar_collapsed', val ? '1' : '0')
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, val ? '1' : '0')
   }
 
   function toggleSidebarCollapsed() {

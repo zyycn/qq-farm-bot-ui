@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { settingsApi } from '@/api'
+import { DEFAULT_FRIEND_QUIET_HOURS, DEFAULT_OFFLINE_REMINDER } from '../constants'
 
 export interface AutomationConfig {
   farm?: boolean
@@ -61,19 +62,11 @@ export const useSettingStore = defineStore('setting', () => {
     plantingStrategy: 'preferred',
     preferredSeedId: 0,
     intervals: {},
-    friendQuietHours: { enabled: false, start: '23:00', end: '07:00' },
+    friendQuietHours: { ...DEFAULT_FRIEND_QUIET_HOURS },
     stealCropBlacklist: [],
     automation: {},
     ui: {},
-    offlineReminder: {
-      channel: 'webhook',
-      reloginUrlMode: 'none',
-      endpoint: '',
-      token: '',
-      title: '账号下线提醒',
-      msg: '账号下线',
-      offlineDeleteSec: 120,
-    },
+    offlineReminder: { ...DEFAULT_OFFLINE_REMINDER },
   })
   const loading = ref(false)
 
@@ -87,19 +80,11 @@ export const useSettingStore = defineStore('setting', () => {
         settings.value.plantingStrategy = d.strategy || 'preferred'
         settings.value.preferredSeedId = d.preferredSeed || 0
         settings.value.intervals = d.intervals || {}
-        settings.value.friendQuietHours = d.friendQuietHours || { enabled: false, start: '23:00', end: '07:00' }
+        settings.value.friendQuietHours = d.friendQuietHours || { ...DEFAULT_FRIEND_QUIET_HOURS }
         settings.value.stealCropBlacklist = Array.isArray(d.stealCropBlacklist) ? d.stealCropBlacklist : []
         settings.value.automation = d.automation || {}
         settings.value.ui = d.ui || {}
-        settings.value.offlineReminder = d.offlineReminder || {
-          channel: 'webhook',
-          reloginUrlMode: 'none',
-          endpoint: '',
-          token: '',
-          title: '账号下线提醒',
-          msg: '账号下线',
-          offlineDeleteSec: 120,
-        }
+        settings.value.offlineReminder = d.offlineReminder || { ...DEFAULT_OFFLINE_REMINDER }
       }
     }
     finally {
@@ -112,15 +97,12 @@ export const useSettingStore = defineStore('setting', () => {
       return { ok: false, error: '未选择账号' }
     loading.value = true
     try {
-      // 1. Save general settings
       await settingsApi.saveSettings(newSettings)
 
-      // 2. Save automation settings
       if (newSettings.automation) {
         await settingsApi.saveAutomation(newSettings.automation)
       }
 
-      // Refresh settings
       await fetchSettings(accountId)
       return { ok: true }
     }

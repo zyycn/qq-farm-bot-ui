@@ -1,161 +1,80 @@
 <script setup lang="ts">
-import { useIntervalFn } from '@vueuse/core'
-import { storeToRefs } from 'pinia'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-import ConfirmModal from '@/components/ConfirmModal.vue'
 import LandCard from '@/components/LandCard.vue'
 
-import { useAccountStore } from '@/stores/account'
-import { useFarmStore } from '@/stores/farm'
-import { useStatusStore } from '@/stores/status'
+defineProps<{
+  lands: any[]
+  summary?: { harvestable?: number, growing?: number, empty?: number, dead?: number } | null
+  connected?: boolean
+  operating?: boolean
+}>()
 
-const farmStore = useFarmStore()
-const accountStore = useAccountStore()
-const statusStore = useStatusStore()
-const { lands, summary, loading } = storeToRefs(farmStore)
-const { currentAccountId, currentAccount } = storeToRefs(accountStore)
-const { status, loading: statusLoading, realtimeConnected } = storeToRefs(statusStore)
-
-const operating = ref(false)
-const confirmVisible = ref(false)
-const confirmConfig = ref({ title: '', message: '', opType: '' })
-
-async function executeOperate() {
-  if (!currentAccountId.value || !confirmConfig.value.opType)
-    return
-  confirmVisible.value = false
-  operating.value = true
-  try {
-    await farmStore.operate(currentAccountId.value, confirmConfig.value.opType)
-  }
-  finally {
-    operating.value = false
-  }
-}
-
-function handleOperate(opType: string) {
-  if (!currentAccountId.value)
-    return
-  const confirmMap: Record<string, string> = {
-    harvest: '确定要收获所有成熟作物吗？',
-    clear: '确定要一键除草/除虫吗？',
-    plant: '确定要一键种植吗？(根据策略配置)',
-    upgrade: '确定要升级所有可升级的土地吗？(消耗金币)',
-    all: '确定要一键全收吗？(包含收获、除草、种植等)',
-  }
-  confirmConfig.value = {
-    title: '确认操作',
-    message: confirmMap[opType] || '确定执行此操作吗？',
-    opType,
-  }
-  confirmVisible.value = true
-}
+const emit = defineEmits<{
+  operate: [opType: string]
+}>()
 
 const operations = [
-  { type: 'harvest', label: '收获', icon: 'i-carbon-wheat', color: 'blue' as const },
-  { type: 'clear', label: '除草/虫', icon: 'i-carbon-clean', color: 'cyan' as const },
-  { type: 'plant', label: '种植', icon: 'i-carbon-sprout', color: 'green' as const },
-  { type: 'upgrade', label: '升级土地', icon: 'i-carbon-upgrade', color: 'purple' as const },
-  { type: 'all', label: '一键全收', icon: 'i-carbon-flash', color: 'orange' as const },
+  { type: 'harvest', label: '收获', icon: 'i-twemoji-sheaf-of-rice' },
+  { type: 'clear', label: '除草', icon: 'i-twemoji-herb' },
+  { type: 'plant', label: '种植', icon: 'i-twemoji-seedling' },
+  { type: 'upgrade', label: '升级', icon: 'i-twemoji-building-construction' },
+  { type: 'all', label: '全收', icon: 'i-twemoji-sparkles' },
 ]
 
-async function refresh() {
-  if (currentAccountId.value) {
-    const acc = currentAccount.value
-    if (!acc)
-      return
-    if (!realtimeConnected.value)
-      await statusStore.fetchStatus(currentAccountId.value)
-    if (acc.running && status.value?.connection?.connected)
-      farmStore.fetchLands(currentAccountId.value)
-  }
+function handleOperate(opType: string) {
+  emit('operate', opType)
 }
-
-watch(currentAccountId, () => refresh())
-
-const { pause, resume } = useIntervalFn(() => {
-  if (lands.value) {
-    lands.value = lands.value.map((l: any) => (l.matureInSec > 0 ? { ...l, matureInSec: l.matureInSec - 1 } : l))
-  }
-}, 1000)
-
-const { pause: pauseRefresh, resume: resumeRefresh } = useIntervalFn(refresh, 60000)
-
-onMounted(() => {
-  refresh()
-  resume()
-  resumeRefresh()
-})
-
-onUnmounted(() => {
-  pause()
-  pauseRefresh()
-})
 </script>
 
 <template>
-  <div class="space-y-4">
-    <a-card variant="borderless" :classes="{ body: '!p-0' }">
-      <div class="flex flex-col items-center justify-between gap-3 p-4 sm:flex-row">
-        <div class="flex items-center gap-2 text-base font-bold a-color-text">
-          <div class="i-carbon-grid text-lg a-color-info" />
-          土地详情
+  <a-card variant="borderless" class="flex-1 overflow-hidden" :classes="{ body: '!p-0 !h-full !flex !flex-col' }">
+    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-b-solid px-3 py-2 a-border-b-border-sec">
+      <div class="min-w-0 flex shrink flex-wrap items-center gap-2">
+        <div class="flex items-center gap-1.5 rounded-lg px-2.5 py-1 a-bg-fill-tertiary">
+          <div class="i-twemoji-sheaf-of-rice text-base" />
+          <span class="text-sm a-color-text-secondary">可收</span>
+          <span class="text-base font-bold a-color-text">{{ summary?.harvestable || 0 }}</span>
         </div>
-        <a-space wrap>
+        <div class="flex items-center gap-1.5 rounded-lg px-2.5 py-1 a-bg-fill-tertiary">
+          <div class="i-twemoji-seedling text-base" />
+          <span class="text-sm a-color-text-secondary">生长</span>
+          <span class="text-base font-bold a-color-text">{{ summary?.growing || 0 }}</span>
+        </div>
+        <div class="flex items-center gap-1.5 rounded-lg px-2.5 py-1 a-bg-fill-tertiary">
+          <span class="text-sm a-color-text-secondary">空闲</span>
+          <span class="text-base font-bold a-color-text">{{ summary?.empty || 0 }}</span>
+        </div>
+        <div
+          v-if="(summary?.dead || 0) > 0"
+          class="flex items-center gap-1.5 rounded-lg px-2.5 py-1 a-bg-fill-tertiary"
+        >
+          <span class="text-sm a-color-text-secondary">枯萎</span>
+          <span class="text-base font-bold a-color-error">{{ summary?.dead || 0 }}</span>
+        </div>
+      </div>
+
+      <div class="flex shrink-0 flex-wrap items-center justify-end gap-1">
+        <a-tooltip v-for="op in operations" :key="op.type" :title="op.label" placement="bottom">
           <a-button
-            v-for="op in operations"
-            :key="op.type"
+            :disabled="operating || !connected"
+            :type="op.type === 'all' ? 'primary' : 'default'"
             size="small"
-            :color="op.color"
-            variant="solid"
-            :disabled="operating"
+            class="h-7!"
             @click="handleOperate(op.type)"
           >
             <template #icon>
-              <div :class="op.icon" />
+              <div class="text-base" :class="op.icon" />
             </template>
-            {{ op.label }}
+            <span class="hidden xl:inline">{{ op.label }}</span>
           </a-button>
-        </a-space>
+        </a-tooltip>
       </div>
-
-      <div class="border-t border-t-solid px-4 py-2.5 a-border-t-border-sec">
-        <a-space wrap>
-          <a-tag color="orange">
-            <div class="i-carbon-clean mr-1 inline-block align-middle" />
-            可收: {{ summary?.harvestable || 0 }}
-          </a-tag>
-          <a-tag color="green">
-            <div class="i-carbon-sprout mr-1 inline-block align-middle" />
-            生长: {{ summary?.growing || 0 }}
-          </a-tag>
-          <a-tag>
-            <div class="i-carbon-checkbox mr-1 inline-block align-middle" />
-            空闲: {{ summary?.empty || 0 }}
-          </a-tag>
-          <a-tag color="red">
-            <div class="i-carbon-warning mr-1 inline-block align-middle" />
-            枯萎: {{ summary?.dead || 0 }}
-          </a-tag>
-        </a-space>
+    </div>
+    <div class="min-h-0 flex-1 overflow-y-auto p-3">
+      <a-empty v-if="!connected" description="账号未连接" class="pt-12" />
+      <a-empty v-else-if="!lands || lands.length === 0" description="暂无土地数据" class="pt-12" />
+      <div v-else class="grid grid-cols-3 gap-2.5 lg:grid-cols-4 xl:grid-cols-5">
+        <LandCard v-for="land in lands" :key="land.id" :land="land" />
       </div>
-
-      <div class="p-4">
-        <a-spin v-if="loading || statusLoading" class="py-12 !block" />
-        <a-empty v-else-if="!status?.connection?.connected" description="账号未登录，请先运行账号或检查网络连接" />
-        <a-empty v-else-if="!lands || lands.length === 0" description="暂无土地数据" />
-        <div v-else class="grid grid-cols-2 gap-3 lg:grid-cols-6 md:grid-cols-4 sm:grid-cols-3">
-          <LandCard v-for="land in lands" :key="land.id" :land="land" />
-        </div>
-      </div>
-    </a-card>
-
-    <ConfirmModal
-      :show="confirmVisible"
-      :title="confirmConfig.title"
-      :message="confirmConfig.message"
-      @confirm="executeOperate"
-      @cancel="confirmVisible = false"
-    />
-  </div>
+    </div>
+  </a-card>
 </template>

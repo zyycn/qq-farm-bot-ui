@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { useAppStore } from '@/stores/app'
+import { useAppStore } from '@/stores'
 
 const appStore = useAppStore()
 const { isDark } = storeToRefs(appStore)

@@ -61,16 +61,16 @@ function getLandTypeName(level: number) {
 <template>
   <a-card
     size="small"
-    :classes="{ body: '!p-2 !flex !flex-col !items-center !min-h-[140px]' }"
+    :classes="{ body: '!p-2 !flex !flex-col !items-center !min-h-[130px]' }"
     :class="getLandStatusClass(land)"
   >
     <span class="self-start text-xs font-mono a-color-text-tertiary">#{{ land.id }}</span>
 
-    <div class="mb-1 mt-2 h-10 w-10 flex items-center justify-center">
+    <div class="my-1 h-10 w-10 flex items-center justify-center">
       <img
         v-if="land.seedImage"
         :src="getSafeImageUrl(land.seedImage)"
-        class="max-h-full max-w-full object-contain"
+        class="mb-0.5 max-h-full max-w-full object-contain"
         loading="lazy"
         referrerpolicy="no-referrer"
       >

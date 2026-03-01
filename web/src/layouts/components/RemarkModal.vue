@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { accountApi } from '@/api'
+import QqAvatar from '@/components/QqAvatar.vue'
 
 const props = defineProps<{
   show: boolean
@@ -8,6 +9,10 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['close', 'saved'])
+
+function handleClose() {
+  emit('close')
+}
 
 const name = ref('')
 const loading = ref(false)
@@ -54,7 +59,7 @@ async function save() {
     :width="380"
     :mask-closable="!loading"
     destroy-on-hidden
-    @cancel="$emit('close')"
+    @cancel="handleClose"
   >
     <template #title>
       <div class="flex items-center gap-2">
@@ -72,15 +77,7 @@ async function save() {
     </div>
 
     <div v-if="account" class="mb-4 flex items-center gap-3 rounded-lg px-3 py-2.5 a-bg-fill-tertiary">
-      <a-avatar
-        :size="36"
-        :src="account.uin ? `https://q1.qlogo.cn/g?b=qq&nk=${account.uin}&s=100` : undefined"
-        class="shrink-0 bg-green-2 ring-2"
-      >
-        <template #icon>
-          <div class="i-twemoji-farmer" />
-        </template>
-      </a-avatar>
+      <QqAvatar :uin="account.uin" :size="36" ring />
       <div class="min-w-0 flex flex-1 flex-col gap-0.5">
         <div class="truncate font-medium">
           {{ account.nick }}
@@ -102,7 +99,7 @@ async function save() {
     </a-form>
 
     <div class="flex items-center justify-end gap-2 a-border-t-border-sec">
-      <a-button :disabled="loading" @click="$emit('close')">
+      <a-button :disabled="loading" @click="handleClose">
         取消
       </a-button>
       <a-button type="primary" :loading="loading" @click="save">

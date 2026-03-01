@@ -81,7 +81,27 @@ function startAdminServer(dataProvider) {
 
     const webDist = path.join(__dirname, '../../../web/dist');
     if (fs.existsSync(webDist)) {
-        app.use(express.static(webDist));
+        // 带 hash 的静态资源：强缓存 30 天，immutable
+        app.use('/assets', express.static(path.join(webDist, 'assets'), {
+            maxAge: '30d',
+            immutable: true,
+        }));
+        // index.html 等入口文件：协商缓存（ETag + Last-Modified）
+        app.use(express.static(webDist, {
+            maxAge: 0,
+            etag: true,
+            lastModified: true,
+        }));
+        // SPA fallback：所有未匹配路由返回 index.html（协商缓存）
+        app.get('*', (req, res, next) => {
+            if (req.path.startsWith('/api') || req.path.startsWith('/socket.io') || req.path.startsWith('/game-config')) return next();
+            const indexPath = path.join(webDist, 'index.html');
+            const stat = fs.statSync(indexPath, { throwIfNoEntry: false });
+            if (!stat) return next();
+            res.set('Cache-Control', 'no-cache');
+            res.set('Last-Modified', stat.mtime.toUTCString());
+            res.sendFile(indexPath);
+        });
     } else {
         adminLogger.warn('web build not found', { webDist });
         app.get('/', (req, res) => res.send('web build not found. Please build the web project.'));

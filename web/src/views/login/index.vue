@@ -83,13 +83,9 @@ async function handleLogin() {
       >
         <!-- Brand -->
         <div class="from-green-50 flex flex-col items-center to-white bg-gradient-to-b px-6 pb-5 pt-8">
-          <a-avatar :size="48" class="mb-3 bg-green-2">
-            <template #icon>
-              <span class="i-twemoji-seedling text-xl" />
-            </template>
-          </a-avatar>
+          <img src="/icon.ico" alt="" class="h-20 w-20">
           <h1 class="text-xl font-bold tracking-tight a-color-text">
-            QQ农场智能助手
+            QQ经典农场助手 PLUS
           </h1>
           <p class="mt-1 text-[13px] a-color-text-tertiary">
             输入管理密码以继续

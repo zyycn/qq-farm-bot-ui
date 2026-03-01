@@ -27,6 +27,7 @@ const emit = defineEmits<{
     :ok-button-props="type === 'danger' ? { danger: true } : undefined"
     :cancel-button-props="isAlert ? { style: { display: 'none' } } : undefined"
     :mask-closable="!loading"
+    centered
     @ok="emit('confirm')"
     @cancel="emit('cancel'); emit('close')"
   >

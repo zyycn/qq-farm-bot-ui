@@ -4,7 +4,7 @@
 
 const { CONFIG, PlantPhase, PHASE_NAMES } = require('../config/config');
 const { getPlantName, getPlantById, getSeedImageBySeedId } = require('../config/gameConfig');
-const { isAutomationOn, getFriendQuietHours, getFriendBlacklist } = require('../models/store');
+const { isAutomationOn, getFriendQuietHours, getFriendBlacklist, getStealCropBlacklist } = require('../models/store');
 const { sendMsgAsync, getUserState, networkEvents } = require('../utils/network');
 const { types } = require('../utils/proto');
 const { toLong, toNum, toTimeSec, getServerTimeSec, log, logWarn, sleep } = require('../utils/utils');
@@ -699,6 +699,17 @@ async function visitFriend(friend, totalActions, myGid) {
     }
 
     const status = analyzeFriendLands(lands, myGid, name);
+
+    // 按偷取作物黑名单过滤 stealable
+    const stealBlacklist = new Set(getStealCropBlacklist());
+    if (stealBlacklist.size > 0) {
+        status.stealableInfo = status.stealableInfo.filter((info) => {
+            const plant = getPlantById(info.plantId);
+            if (!plant || plant.seed_id == null) return true;
+            return !stealBlacklist.has(plant.seed_id);
+        });
+        status.stealable = status.stealableInfo.map(x => x.landId);
+    }
 
     // 执行操作
     const actions = [];

@@ -476,12 +476,13 @@ function startAdminServer(dataProvider) {
             const strategy = store.getPlantingStrategy(id);
             const preferredSeed = store.getPreferredSeed(id);
             const friendQuietHours = store.getFriendQuietHours(id);
+            const stealCropBlacklist = store.getStealCropBlacklist(id);
             const automation = store.getAutomation(id);
             const ui = store.getUI();
             const offlineReminder = store.getOfflineReminder
                 ? store.getOfflineReminder()
                 : { channel: 'webhook', reloginUrlMode: 'none', endpoint: '', token: '', title: '账号下线提醒', msg: '账号下线', offlineDeleteSec: 120 };
-            res.json({ ok: true, data: { intervals, strategy, preferredSeed, friendQuietHours, automation, ui, offlineReminder } });
+            res.json({ ok: true, data: { intervals, strategy, preferredSeed, friendQuietHours, stealCropBlacklist, automation, ui, offlineReminder } });
         } catch (e) {
             res.status(500).json({ ok: false, error: e.message });
         }

@@ -63,6 +63,7 @@ const DEFAULT_ACCOUNT_CONFIG = {
         end: '07:00',
     },
     friendBlacklist: [],
+    stealCropBlacklist: [],
 };
 const ALLOWED_AUTOMATION_KEYS = new Set(Object.keys(DEFAULT_ACCOUNT_CONFIG.automation));
 
@@ -138,12 +139,14 @@ function cloneAccountConfig(base = DEFAULT_ACCOUNT_CONFIG) {
     }
 
     const rawBlacklist = Array.isArray(base.friendBlacklist) ? base.friendBlacklist : [];
+    const rawStealCropBlacklist = Array.isArray(base.stealCropBlacklist) ? base.stealCropBlacklist : [];
     return {
         ...base,
         automation,
         intervals: { ...(base.intervals || DEFAULT_ACCOUNT_CONFIG.intervals) },
         friendQuietHours: { ...(base.friendQuietHours || DEFAULT_ACCOUNT_CONFIG.friendQuietHours) },
         friendBlacklist: rawBlacklist.map(Number).filter(n => Number.isFinite(n) && n > 0),
+        stealCropBlacklist: rawStealCropBlacklist.map(Number).filter(n => Number.isFinite(n) && n >= 0),
         plantingStrategy: ALLOWED_PLANTING_STRATEGIES.includes(String(base.plantingStrategy || ''))
             ? String(base.plantingStrategy)
             : DEFAULT_ACCOUNT_CONFIG.plantingStrategy,
@@ -203,6 +206,10 @@ function normalizeAccountConfig(input, fallback = accountFallbackConfig) {
 
     if (Array.isArray(src.friendBlacklist)) {
         cfg.friendBlacklist = src.friendBlacklist.map(Number).filter(n => Number.isFinite(n) && n > 0);
+    }
+
+    if (Array.isArray(src.stealCropBlacklist)) {
+        cfg.stealCropBlacklist = src.stealCropBlacklist.map(Number).filter(n => Number.isFinite(n) && n >= 0);
     }
 
     return cfg;
@@ -353,6 +360,7 @@ function getConfigSnapshot(accountId) {
         intervals: { ...cfg.intervals },
         friendQuietHours: { ...cfg.friendQuietHours },
         friendBlacklist: [...(cfg.friendBlacklist || [])],
+        stealCropBlacklist: [...(cfg.stealCropBlacklist || [])],
         ui: { ...globalConfig.ui },
     };
 }
@@ -404,6 +412,10 @@ function applyConfigSnapshot(snapshot, options = {}) {
 
     if (Array.isArray(cfg.friendBlacklist)) {
         next.friendBlacklist = cfg.friendBlacklist.map(Number).filter(n => Number.isFinite(n) && n > 0);
+    }
+
+    if (Array.isArray(cfg.stealCropBlacklist)) {
+        next.stealCropBlacklist = cfg.stealCropBlacklist.map(Number).filter(n => Number.isFinite(n) && n >= 0);
     }
 
     if (cfg.ui && typeof cfg.ui === 'object') {
@@ -486,6 +498,18 @@ function setFriendBlacklist(accountId, list) {
     next.friendBlacklist = Array.isArray(list) ? list.map(Number).filter(n => Number.isFinite(n) && n > 0) : [];
     setAccountConfigSnapshot(accountId, next);
     return [...next.friendBlacklist];
+}
+
+function getStealCropBlacklist(accountId) {
+    return [...(getAccountConfigSnapshot(accountId).stealCropBlacklist || [])];
+}
+
+function setStealCropBlacklist(accountId, list) {
+    const current = getAccountConfigSnapshot(accountId);
+    const next = normalizeAccountConfig(current, accountFallbackConfig);
+    next.stealCropBlacklist = Array.isArray(list) ? list.map(Number).filter(n => Number.isFinite(n) && n >= 0) : [];
+    setAccountConfigSnapshot(accountId, next);
+    return [...next.stealCropBlacklist];
 }
 
 function getUI() {
@@ -590,6 +614,8 @@ module.exports = {
     getFriendQuietHours,
     getFriendBlacklist,
     setFriendBlacklist,
+    getStealCropBlacklist,
+    setStealCropBlacklist,
     getUI,
     setUITheme,
     getOfflineReminder,

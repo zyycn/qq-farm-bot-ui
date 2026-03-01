@@ -103,6 +103,7 @@ function createDataProvider(options) {
                 preferredSeedId,
                 intervals: body.intervals,
                 friendQuietHours: body.friendQuietHours,
+                stealCropBlacklist: body.stealCropBlacklist,
             };
             store.applyConfigSnapshot(snapshot, { accountId });
             const rev = nextConfigRevision();
@@ -112,6 +113,7 @@ function createDataProvider(options) {
                 preferredSeed: store.getPreferredSeed(accountId),
                 intervals: store.getIntervals(accountId),
                 friendQuietHours: store.getFriendQuietHours(accountId),
+                stealCropBlacklist: store.getStealCropBlacklist(accountId),
                 configRevision: rev,
             };
         },

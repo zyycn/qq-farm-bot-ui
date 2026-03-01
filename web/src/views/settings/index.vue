@@ -53,6 +53,7 @@ const localSettings = ref({
   preferredSeedId: 0,
   intervals: { farmMin: 2, farmMax: 2, friendMin: 10, friendMax: 10 },
   friendQuietHours: { enabled: false, start: '23:00', end: '07:00' },
+  stealCropBlacklist: [] as number[],
   automation: {
     farm: false,
     task: false,
@@ -100,6 +101,7 @@ function syncLocalSettings() {
         preferredSeedId: settings.value.preferredSeedId,
         intervals: settings.value.intervals,
         friendQuietHours: settings.value.friendQuietHours,
+        stealCropBlacklist: Array.isArray(settings.value.stealCropBlacklist) ? settings.value.stealCropBlacklist : [],
         automation: settings.value.automation,
       }),
     )
@@ -271,6 +273,15 @@ const preferredSeedOptions = computed(() => {
   return options
 })
 
+const stealBlacklistOptions = computed(() => {
+  if (!seeds.value || seeds.value.length === 0)
+    return []
+  return seeds.value.map(seed => ({
+    label: `${seed.requiredLevel}级 ${seed.name}`,
+    value: seed.seedId,
+  }))
+})
+
 const analyticsSortByMap: Record<string, string> = {
   max_exp: 'exp',
   max_fert_exp: 'fert',
@@ -407,10 +418,6 @@ async function handleSaveOffline() {
               UIN: {{ currentAccountUin || '-' }}
             </div>
           </div>
-          <a-button type="primary" :loading="saving" @click="saveAccountSettings">
-            <div class="i-twemoji-floppy-disk mr-1.5 text-base" />
-            保存账号设置
-          </a-button>
         </div>
         <div v-else class="flex items-center gap-3 py-1">
           <div class="i-twemoji-gear text-2xl opacity-40" />
@@ -425,13 +432,18 @@ async function handleSaveOffline() {
         </div>
       </a-card>
 
-      <!-- Section 2: Strategy -->
       <a-card v-if="currentAccountId" variant="borderless" class="shrink-0" :classes="{ body: '!p-4' }">
-        <div class="mb-3 flex items-center gap-2 text-base font-bold a-color-text">
-          <div class="i-twemoji-seedling text-base" />
-          种植策略与间隔
+        <!-- Section 2: Strategy -->
+        <div class="mb-3 flex items-center justify-between gap-2 text-base font-bold a-color-text">
+          <div class="flex items-center gap-2">
+            <div class="i-twemoji-seedling text-base" />
+            种植策略与间隔
+          </div>
+          <a-button type="primary" size="small" :loading="saving" @click="saveAccountSettings">
+            保存账号设置
+          </a-button>
         </div>
-        <div class="grid grid-cols-2 gap-3 lg:grid-cols-6 md:grid-cols-3">
+        <div class="grid grid-cols-2 gap-x-3 lg:grid-cols-6 md:grid-cols-3">
           <a-form layout="vertical" class="lg:col-span-2">
             <a-form-item label="种植策略">
               <a-select v-model:value="localSettings.plantingStrategy" :options="plantingStrategyOptions" />
@@ -468,7 +480,7 @@ async function handleSaveOffline() {
             </a-form-item>
           </a-form>
         </div>
-        <div class="flex flex-wrap items-center gap-4 border-t border-t-solid pt-3 a-border-t-border-sec">
+        <div class="flex flex-wrap items-center gap-4">
           <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.friendQuietHours.enabled" size="small" />
             <span>好友静默时段</span>
@@ -489,62 +501,61 @@ async function handleSaveOffline() {
             />
           </div>
         </div>
-      </a-card>
 
-      <!-- Section 3: Automation -->
-      <a-card v-if="currentAccountId" variant="borderless" class="shrink-0" :classes="{ body: '!p-4' }">
+        <a-divider />
+
+        <!-- Section 3: Automation -->
         <div class="mb-3 flex items-center gap-2 text-base font-bold a-color-text">
           <div class="i-twemoji-robot text-base" />
           自动控制
         </div>
-        <div class="grid grid-cols-2 gap-x-3 gap-y-1 lg:grid-cols-5 md:grid-cols-4">
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+        <div class="grid grid-cols-2 gap-4 lg:grid-cols-5 md:grid-cols-4">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.farm" size="small" /><span>自动种植收获</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.task" size="small" /><span>自动做任务</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.sell" size="small" /><span>自动卖果实</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.friend" size="small" /><span>自动好友互动</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.farm_push" size="small" /><span>推送触发巡田</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.land_upgrade" size="small" /><span>自动升级土地</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.email" size="small" /><span>自动领取邮件</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.free_gifts" size="small" /><span>自动商城礼包</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.share_reward" size="small" /><span>自动分享奖励</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.vip_gift" size="small" /><span>自动VIP礼包</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.month_card" size="small" /><span>自动月卡奖励</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.open_server_gift" size="small" /><span>自动开服红包</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.fertilizer_gift" size="small" /><span>自动填充化肥</span>
           </label>
-          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 transition-colors">
+          <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.fertilizer_buy" size="small" /><span>自动购买化肥</span>
           </label>
         </div>
-
         <div
           v-if="localSettings.automation.friend"
-          class="mt-2 flex flex-wrap gap-3 rounded-lg px-3 py-2 a-bg-primary-bg"
+          class="mt-2 flex flex-wrap gap-6 py-2"
         >
           <label class="flex cursor-pointer items-center gap-2">
             <a-switch v-model:checked="localSettings.automation.friend_steal" size="small" /><span>偷菜</span>
@@ -559,11 +570,22 @@ async function handleSaveOffline() {
             <a-switch v-model:checked="localSettings.automation.friend_help_exp_limit" size="small" /><span>经验上限停帮</span>
           </label>
         </div>
-
-        <div class="mt-3 w-full md:w-1/4">
+        <div class="grid grid-cols-1 mt-3 w-full gap-x-3 md:grid-cols-2">
           <a-form layout="vertical">
             <a-form-item label="施肥策略">
               <a-select v-model:value="localSettings.automation.fertilizer" :options="fertilizerOptions" />
+            </a-form-item>
+          </a-form>
+          <a-form layout="vertical">
+            <a-form-item label="偷取作物黑名单">
+              <a-select
+                v-model:value="localSettings.stealCropBlacklist"
+                mode="multiple"
+                :options="stealBlacklistOptions"
+                placeholder="选择不偷取的作物..."
+                allow-clear
+                :max-tag-count="5"
+              />
             </a-form-item>
           </a-form>
         </div>
@@ -579,7 +601,7 @@ async function handleSaveOffline() {
               管理密码
               <span class="ml-1 text-sm font-normal a-color-text-tertiary">建议修改默认密码</span>
             </div>
-            <a-button type="primary" :loading="passwordSaving" @click="handleChangePassword">
+            <a-button type="primary" size="small" :loading="passwordSaving" @click="handleChangePassword">
               修改密码
             </a-button>
           </div>
@@ -603,7 +625,7 @@ async function handleSaveOffline() {
               <div class="i-twemoji-bell text-base" />
               下线提醒
             </div>
-            <a-button type="primary" :loading="offlineSaving" @click="handleSaveOffline">
+            <a-button type="primary" size="small" :loading="offlineSaving" @click="handleSaveOffline">
               保存提醒设置
             </a-button>
           </div>

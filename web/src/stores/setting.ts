@@ -50,6 +50,7 @@ export interface SettingsState {
   preferredSeedId: number
   intervals: IntervalsConfig
   friendQuietHours: FriendQuietHoursConfig
+  stealCropBlacklist?: number[]
   automation: AutomationConfig
   ui: UIConfig
   offlineReminder: OfflineConfig
@@ -61,6 +62,7 @@ export const useSettingStore = defineStore('setting', () => {
     preferredSeedId: 0,
     intervals: {},
     friendQuietHours: { enabled: false, start: '23:00', end: '07:00' },
+    stealCropBlacklist: [],
     automation: {},
     ui: {},
     offlineReminder: {
@@ -86,6 +88,7 @@ export const useSettingStore = defineStore('setting', () => {
         settings.value.preferredSeedId = d.preferredSeed || 0
         settings.value.intervals = d.intervals || {}
         settings.value.friendQuietHours = d.friendQuietHours || { enabled: false, start: '23:00', end: '07:00' }
+        settings.value.stealCropBlacklist = Array.isArray(d.stealCropBlacklist) ? d.stealCropBlacklist : []
         settings.value.automation = d.automation || {}
         settings.value.ui = d.ui || {}
         settings.value.offlineReminder = d.offlineReminder || {

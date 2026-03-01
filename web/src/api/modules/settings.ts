@@ -10,6 +10,7 @@ export function saveSettings(payload: any) {
     preferredSeedId: payload.preferredSeedId,
     intervals: payload.intervals,
     friendQuietHours: payload.friendQuietHours,
+    stealCropBlacklist: payload.stealCropBlacklist,
   }
   return api.post('/api/settings/save', settingsPayload)
 }

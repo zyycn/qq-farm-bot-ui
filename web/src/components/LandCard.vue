@@ -7,6 +7,16 @@ const props = defineProps<{
 
 const land = computed(() => props.land)
 
+const LAND_LEVEL_CLASS: Record<number, string> = {
+  1: 'bg-yellow-1/80 border-yellow-2',
+  2: 'bg-red-1/80 border-red-2',
+  3: 'bg-slate-1 border-slate-300',
+  4: 'bg-amber-1/80 border-amber-300',
+}
+
+const RING_HARVESTABLE = 'ring-2 ring-yellow-5 ring-offset-1'
+const RING_STEALABLE = 'ring-2 ring-purple-5 ring-offset-1'
+
 function getLandStatusClass(land: any) {
   const status = land.status
   const level = Number(land.level) || 0
@@ -14,28 +24,14 @@ function getLandStatusClass(land: any) {
   if (status === 'locked')
     return 'opacity-60 border-dashed'
 
-  let baseClass = ''
-  switch (level) {
-    case 1:
-      baseClass = 'bg-yellow-50/80 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-800'
-      break
-    case 2:
-      baseClass = 'bg-red-50/80 dark:bg-red-900/10 border-red-200 dark:border-red-800'
-      break
-    case 3:
-      baseClass = 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600'
-      break
-    case 4:
-      baseClass = 'bg-amber-100/80 dark:bg-amber-900/20 border-amber-300 dark:border-amber-600'
-      break
-  }
+  const baseClass = LAND_LEVEL_CLASS[level] || ''
 
   if (status === 'dead')
-    return 'grayscale'
+    return `${baseClass} grayscale`
   if (status === 'harvestable')
-    return `${baseClass} ring-2 ring-yellow-500 ring-offset-1 dark:ring-offset-gray-900`
+    return `${baseClass} ${RING_HARVESTABLE}`
   if (status === 'stealable')
-    return `${baseClass} ring-2 ring-purple-500 ring-offset-1 dark:ring-offset-gray-900`
+    return `${baseClass} ${RING_STEALABLE}`
   return baseClass
 }
 

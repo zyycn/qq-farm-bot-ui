@@ -621,12 +621,12 @@ useIntervalFn(updateCountdowns, 1000)
         </a-card>
 
         <!-- Operations -->
-        <a-card variant="borderless" class="flex-1" :classes="{ body: '!p-4' }">
+        <a-card variant="borderless" class="min-h-0 flex-1" :classes="{ body: '!p-4 !h-full !flex !flex-col !overflow-hidden' }">
           <div class="mb-3 flex items-center gap-2 text-base font-medium a-color-text">
             <div class="i-twemoji-bar-chart text-lg" />
             今日统计
           </div>
-          <div class="grid grid-cols-2 min-h-20 gap-2">
+          <div class="grid grid-cols-2 min-h-20 gap-2 overflow-y-auto">
             <div
               v-for="(val, key) in status?.operations || {}"
               :key="key"

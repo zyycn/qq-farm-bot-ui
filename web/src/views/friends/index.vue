@@ -12,8 +12,8 @@ const accountStore = useAccountStore()
 const friendStore = useFriendStore()
 const statusStore = useStatusStore()
 const { currentAccountId, currentAccount } = storeToRefs(accountStore)
-const { friends, loading, friendLands, friendLandsLoading, blacklist } = storeToRefs(friendStore)
-const { status, loading: statusLoading, realtimeConnected } = storeToRefs(statusStore)
+const { friends, friendLands, friendLandsLoading, blacklist } = storeToRefs(friendStore)
+const { status, realtimeConnected } = storeToRefs(statusStore)
 
 const showConfirm = ref(false)
 const confirmMessage = ref('')
@@ -60,17 +60,23 @@ async function onConfirm() {
 const expandedFriends = ref<Set<string>>(new Set())
 
 async function loadFriends() {
-  if (currentAccountId.value) {
-    const acc = currentAccount.value
-    if (!acc)
-      return
-    if (!realtimeConnected.value)
-      await statusStore.fetchStatus(currentAccountId.value)
-    if (acc.running && status.value?.connection?.connected) {
-      avatarErrorKeys.value.clear()
-      friendStore.fetchFriends(currentAccountId.value)
-      friendStore.fetchBlacklist(currentAccountId.value)
-    }
+  if (!currentAccountId.value)
+    return
+
+  if (!accountStore.accounts.length)
+    await accountStore.fetchAccounts()
+
+  const acc = currentAccount.value
+  if (!acc)
+    return
+
+  if (!realtimeConnected.value)
+    await statusStore.fetchStatus(currentAccountId.value)
+
+  if (acc.running && status.value?.connection?.connected) {
+    avatarErrorKeys.value.clear()
+    friendStore.fetchFriends(currentAccountId.value)
+    friendStore.fetchBlacklist(currentAccountId.value)
   }
 }
 
@@ -179,9 +185,7 @@ const opButtons = [
       好友农场
     </div>
 
-    <a-spin v-if="loading || statusLoading" class="flex-1 items-center justify-center !flex" />
-
-    <div v-else-if="!currentAccountId" class="flex flex-1 flex-col items-center justify-center gap-3">
+    <div v-if="!currentAccountId" class="flex flex-1 flex-col items-center justify-center gap-3">
       <div class="i-twemoji-people-hugging text-5xl opacity-30" />
       <div class="text-base a-color-text-tertiary">
         请先在侧边栏选择账号

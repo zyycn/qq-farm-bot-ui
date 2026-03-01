@@ -25,7 +25,7 @@ const emit = defineEmits<{
     :ok-text="confirmText || '确定'"
     :cancel-text="cancelText || '取消'"
     :ok-button-props="type === 'danger' ? { danger: true } : undefined"
-    :cancel-button-props="isAlert ? { style: { display: 'none' } } : undefined"
+    :cancel-button-props="isAlert ? { styles: { root: { display: 'none' } } } : undefined"
     :mask-closable="!loading"
     centered
     @ok="emit('confirm')"

@@ -23,7 +23,7 @@ const localSettings = defineModel<{
   intervals: { farmMin: number, farmMax: number, friendMin: number, friendMax: number }
   friendQuietHours: { enabled: boolean, start: string, end: string }
   stealCropBlacklist: number[]
-  automation: Record<string, unknown>
+  automation: Record<string, boolean | string>
 }>('localSettings', { required: true })
 
 const preferredSeedOptions = computed(() => {

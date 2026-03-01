@@ -23,8 +23,8 @@ export const METRIC_MAP: Record<string, string> = {
 }
 
 export const COLUMNS = [
-  { title: '#', key: 'rank', width: 50, align: 'center', fixed: 'left' },
-  { title: '作物', dataIndex: 'name', key: 'name', fixed: 'left', width: 150 },
+  { title: '#', key: 'rank', width: 50, align: 'center' as const, fixed: 'left' as const },
+  { title: '作物', dataIndex: 'name', key: 'name', fixed: 'left' as const, width: 150 },
   { title: '生长时间', dataIndex: 'growTime', key: 'growTime', width: 110 },
   { title: '经验/时', dataIndex: 'expPerHour', key: 'expPerHour', width: 100 },
   { title: '肥料经验/时', dataIndex: 'normalFertilizerExpPerHour', key: 'normalFertilizerExpPerHour', width: 120 },

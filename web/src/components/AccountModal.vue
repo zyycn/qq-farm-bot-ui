@@ -238,7 +238,9 @@ watch(
         type="text"
         class="flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-base transition-all"
         :class="
-          activeTab === 'qr' ? 'a-bg-container a-color-primary-text font-semibold shadow-sm' : 'a-color-text-secondary'
+          activeTab === 'qr'
+            ? 'a-bg-container a-color-primary-text font-semibold shadow-sm a-bg-primary-bg hover:!a-bg-primary-bg hover:!a-color-primary-text'
+            : 'a-color-text-secondary'
         "
         @click="((activeTab = 'qr'), loadQRCode())"
       >
@@ -250,7 +252,7 @@ watch(
         class="flex flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-base transition-all"
         :class="
           activeTab === 'manual'
-            ? 'a-bg-container a-color-primary-text font-semibold shadow-sm'
+            ? 'a-bg-container a-color-primary-text font-semibold shadow-sm a-bg-primary-bg hover:!a-bg-primary-bg hover:!a-color-primary-text'
             : 'a-color-text-secondary'
         "
         @click="((activeTab = 'manual'), stopQRCheck())"

@@ -20,19 +20,11 @@ export interface AccountLog {
   reason?: string
 }
 
-export function getPlatformLabel(p?: string) {
+export function getPlatformIcon(p?: string) {
   if (p === 'qq')
-    return 'QQ'
+    return 'i-icon-park-solid-tencent-qq'
   if (p === 'wx')
-    return '微信'
-  return ''
-}
-
-export function getPlatformClass(p?: string) {
-  if (p === 'qq')
-    return 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
-  if (p === 'wx')
-    return 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+    return 'i-icon-park-solid-wechat'
   return ''
 }
 

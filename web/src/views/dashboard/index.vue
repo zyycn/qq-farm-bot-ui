@@ -311,16 +311,22 @@ watch(currentAccountId, () => {
   refresh()
 })
 
-watch(() => status.value?.connection?.connected, (connected) => {
-  if (connected)
-    refreshBag(true)
-})
+watch(
+  () => status.value?.connection?.connected,
+  (connected) => {
+    if (connected)
+      refreshBag(true)
+  },
+)
 
-watch(() => JSON.stringify(status.value?.operations || {}), (next, prev) => {
-  if (!realtimeConnected.value || next === prev)
-    return
-  refreshBag()
-})
+watch(
+  () => JSON.stringify(status.value?.operations || {}),
+  (next, prev) => {
+    if (!realtimeConnected.value || next === prev)
+      return
+    refreshBag()
+  },
+)
 
 watch(hasActiveLogFilter, (enabled) => {
   statusStore.setRealtimeLogsEnabled(!enabled)
@@ -391,7 +397,7 @@ useIntervalFn(updateCountdowns, 1000)
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 md:h-full">
+  <div class="h-full flex flex-col gap-3">
     <!-- Status Cards -->
     <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
       <!-- Account & Exp -->
@@ -489,22 +495,22 @@ useIntervalFn(updateCountdowns, 1000)
         <div class="grid grid-cols-4 h-full gap-2">
           <div class="flex flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-3 a-bg-fill-tertiary">
             <div class="i-twemoji-droplet text-2xl" />
-            <span class="text-sm a-color-text-secondary">普通化肥</span>
+            <span class="text-center text-sm a-color-text-secondary">普通化肥</span>
             <span class="text-base font-bold a-color-text">{{ formatBucketTime(fertilizerNormal) }}</span>
           </div>
           <div class="flex flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-3 a-bg-fill-tertiary">
             <div class="i-twemoji-herb text-2xl" />
-            <span class="text-sm a-color-text-secondary">有机化肥</span>
+            <span class="text-center text-sm a-color-text-secondary">有机化肥</span>
             <span class="text-base font-bold a-color-text">{{ formatBucketTime(fertilizerOrganic) }}</span>
           </div>
           <div class="flex flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-3 a-bg-fill-tertiary">
             <div class="i-twemoji-four-leaf-clover text-2xl" />
-            <span class="text-sm a-color-text-secondary">普通收藏</span>
+            <span class="text-center text-sm a-color-text-secondary">普通收藏</span>
             <span class="text-base font-bold a-color-text">{{ collectionNormal?.count || 0 }}</span>
           </div>
           <div class="flex flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-3 a-bg-fill-tertiary">
             <div class="i-twemoji-gem-stone text-2xl" />
-            <span class="text-sm a-color-text-secondary">典藏收藏</span>
+            <span class="text-center text-sm a-color-text-secondary">典藏收藏</span>
             <span class="text-base font-bold a-color-text">{{ collectionRare?.count || 0 }}</span>
           </div>
         </div>
@@ -570,7 +576,7 @@ useIntervalFn(updateCountdowns, 1000)
             @scroll="onLogScroll"
           >
             <a-empty v-if="!allLogs.length" description="暂无日志" />
-            <div v-for="log in allLogs" :key="log.ts + log.msg" class="mb-1 break-all">
+            <div v-for="log in allLogs" :key="log.ts + log.msg" class="mb-1 break-all text-xs">
               <span class="mr-2 select-none a-color-text-tertiary">[{{ formatLogTime(log.time) }}]</span>
               <a-tag
                 :color="log.tag === '错误' ? 'red' : log.tag === '警告' ? 'orange' : 'green'"
@@ -620,7 +626,7 @@ useIntervalFn(updateCountdowns, 1000)
             <div class="i-twemoji-bar-chart text-lg" />
             今日统计
           </div>
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 min-h-20 gap-2">
             <div
               v-for="(val, key) in status?.operations || {}"
               :key="key"

@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AccountModal from '@/components/AccountModal.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
-import { getPlatformClass, getPlatformLabel, useAccountStore } from '@/stores/account'
+import { getPlatformIcon, useAccountStore } from '@/stores/account'
 
 const router = useRouter()
 const accountStore = useAccountStore()
@@ -69,7 +69,16 @@ function getAvatar(acc: any) {
 }
 
 function getDisplayName(acc: any) {
-  return acc.name || acc.nick || acc.id
+  if (acc.name) {
+    if (acc.nick)
+      return `${acc.nick} (${acc.name})`
+    return acc.name
+  }
+
+  if (acc.nick)
+    return acc.nick
+
+  return acc.uin
 }
 </script>
 
@@ -83,9 +92,6 @@ function getDisplayName(acc: any) {
         <span v-if="accounts.length" class="ml-1 text-sm font-normal a-color-text-tertiary">{{ accounts.length }} 个账号</span>
       </div>
       <a-button type="primary" @click="openAddModal">
-        <template #icon>
-          <div class="i-twemoji-plus text-base" />
-        </template>
         添加账号
       </a-button>
     </div>
@@ -131,27 +137,24 @@ function getDisplayName(acc: any) {
           <div class="px-4 py-3">
             <div class="flex items-center gap-3">
               <a-avatar
-                :size="46"
+                :size="44"
                 :src="getAvatar(acc)"
-                class="shrink-0 shadow-sm ring-2"
-                style="--un-ring-color: var(--ant-color-bg-container)"
+                class="shrink-0 bg-green-2 ring-2"
               >
                 <template #icon>
                   <div class="i-twemoji-farmer text-xl" />
                 </template>
               </a-avatar>
-              <div class="min-w-0 flex-1">
+              <div class="min-w-0 flex flex-1 flex-col gap-1.5">
                 <div class="truncate text-base font-bold a-color-text">
                   {{ getDisplayName(acc) }}
                 </div>
                 <div class="mt-0.5 flex items-center gap-1.5">
-                  <span
-                    v-if="acc.platform"
-                    class="rounded px-1 py-0.5 text-xs font-medium leading-tight"
-                    :class="getPlatformClass(acc.platform)"
-                  >
-                    {{ getPlatformLabel(acc.platform) }}
-                  </span>
+                  <div
+                    v-if="getPlatformIcon(acc.platform)"
+                    class="shrink-0 text-sm text-primary"
+                    :class="getPlatformIcon(acc.platform)"
+                  />
                   <span class="text-sm a-color-text-tertiary">
                     {{ acc.uin || '未绑定' }}
                   </span>
@@ -168,7 +171,6 @@ function getDisplayName(acc: any) {
               @click="toggleAccount(acc)"
             >
               <div class="text-base" :class="acc.running ? 'i-twemoji-stop-button' : 'i-twemoji-play-button'" />
-              {{ acc.running ? '停止' : '启动' }}
             </a-button>
             <a-button
               color="primary"
@@ -176,7 +178,6 @@ function getDisplayName(acc: any) {
               @click="openSettings(acc)"
             >
               <div class="i-twemoji-gear text-base" />
-              设置
             </a-button>
             <a-button
               color="primary"
@@ -184,7 +185,6 @@ function getDisplayName(acc: any) {
               @click="openEditModal(acc)"
             >
               <div class="i-twemoji-memo text-base" />
-              编辑
             </a-button>
             <a-button
               color="primary"
@@ -192,7 +192,6 @@ function getDisplayName(acc: any) {
               @click="handleDelete(acc)"
             >
               <div class="i-twemoji-wastebasket text-base" />
-              删除
             </a-button>
           </div>
         </div>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { UserOutlined } from '@antdv-next/icons'
 import { useDateFormat, useIntervalFn, useNow } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -7,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { authApi } from '@/api'
 import AccountModal from '@/components/AccountModal.vue'
 import routes from '@/router/routes'
-import { getPlatformLabel, useAccountStore } from '@/stores/account'
+import { getPlatformIcon, useAccountStore } from '@/stores/account'
 
 import { useAppStore } from '@/stores/app'
 import { useStatusStore } from '@/stores/status'
@@ -127,30 +126,30 @@ const uptime = computed(() => {
   return `${h}h ${m}m ${s}s`
 })
 
-const platform = computed(() => getPlatformLabel(currentAccount.value?.platform))
+const platformIcon = computed(() => getPlatformIcon(currentAccount.value?.platform))
 
-const displayName = computed(() => {
+const displayInfo = computed(() => {
   const acc = currentAccount.value
-  if (!acc)
-    return '选择账号'
+
+  if (!acc) {
+    return {
+      primary: '选择账号',
+      secondary: '',
+    }
+  }
 
   const liveName = status.value?.status?.name
-  if (liveName && liveName !== '未登录') {
-    if (acc.name)
-      return `${liveName} (${acc.name})`
-    return liveName
+  const isOnline = liveName && liveName !== '未登录'
+
+  return {
+    primary: isOnline
+      ? liveName
+      : (acc.nick),
+
+    secondary: isOnline && acc.name
+      ? acc.name
+      : '',
   }
-
-  if (acc.name) {
-    if (acc.nick)
-      return `${acc.nick} (${acc.name})`
-    return acc.name
-  }
-
-  if (acc.nick)
-    return acc.nick
-
-  return acc.uin
 })
 
 const selectedAccountId = computed({
@@ -164,9 +163,9 @@ const selectedAccountId = computed({
 
 const accountOptions = computed(() => {
   return (accounts.value || []).map((acc: any) => ({
+    ...acc,
     label: acc.name || acc.nick || acc.uin || acc.id,
     value: String(acc.id),
-    uin: acc.uin,
   }))
 })
 
@@ -227,7 +226,7 @@ watch(
 <template>
   <!-- Desktop sider -->
   <a-layout-sider
-    class="hidden lg:block"
+    class="hidden xl:block"
     :width="230"
     :collapsed-width="72"
     :collapsed="sidebarCollapsed"
@@ -236,34 +235,42 @@ watch(
     <div class="h-full flex flex-col a-bg-container">
       <!-- Brand -->
       <div
-        class="h-12 flex shrink-0 items-center border-b border-b-solid px-4 a-border-b-border-sec"
-        :class="sidebarCollapsed ? 'justify-center' : 'gap-2.5'"
+        class="brand-header h-12 flex shrink-0 items-center border-b border-b-solid a-border-b-border-sec"
+        :class="sidebarCollapsed ? 'justify-center px-2' : 'gap-2 px-4'"
       >
-        <div class="i-twemoji-seedling shrink-0 text-xl" />
-        <span v-if="!sidebarCollapsed" class="whitespace-nowrap text-lg font-bold a-color-text">QQ农场助手</span>
+        <div class="brand-icon relative flex items-center justify-center">
+          <div class="i-twemoji-seedling shrink-0 text-xl" />
+        </div>
+        <template v-if="!sidebarCollapsed">
+          <span class="brand-title whitespace-nowrap text-lg font-bold tracking-wide font-serif">QQ农场助手</span>
+          <span class="brand-sparkle text-xs">✦</span>
+        </template>
       </div>
 
       <!-- Account (expanded) -->
       <div v-if="!sidebarCollapsed" class="px-3 py-3">
         <div class="overflow-hidden border rounded-xl border-solid shadow-sm a-border-border-sec">
           <div class="flex items-center gap-3 px-3 py-2.5 a-bg-primary-bg">
-            <a-avatar
-              :size="40"
-              :src="currentAccount?.uin ? `https://q1.qlogo.cn/g?b=qq&nk=${currentAccount.uin}&s=100` : undefined"
-              class="shrink-0 shadow-sm ring-2"
-              style="--un-ring-color: var(--ant-color-bg-container)"
-            >
-              <template #icon>
-                <UserOutlined />
-              </template>
-            </a-avatar>
-            <div class="min-w-0 flex-1">
+            <div class="relative">
+              <a-avatar
+                :size="40"
+                :src="currentAccount?.uin ? `https://q1.qlogo.cn/g?b=qq&nk=${currentAccount.uin}&s=100` : undefined"
+                class="shrink-0 bg-green-2 ring-2"
+              >
+                <template #icon>
+                  <div class="i-twemoji-farmer text-xl" />
+                </template>
+              </a-avatar>
+
+              <div v-if="platformIcon" class="absolute shrink-0 text-[13px] text-primary -bottom-0.7 -right-1" :class="platformIcon" />
+            </div>
+
+            <div class="min-w-0 flex flex-1 flex-col gap-0.5">
               <div class="truncate text-base font-semibold leading-snug a-color-text">
-                {{ displayName }}
+                {{ displayInfo.primary }}
               </div>
-              <div class="flex items-center gap-1.5 truncate text-sm a-color-text-tertiary">
-                <span v-if="platform" class="shrink-0 text-xs font-medium a-color-primary-text">{{ platform }}</span>
-                {{ currentAccount?.uin || '未选择账号' }}
+              <div class="truncate text-sm leading-snug a-color-text-tertiary">
+                {{ displayInfo.secondary }}
               </div>
             </div>
             <a-badge :status="connectionStatus.badge" />
@@ -274,19 +281,18 @@ watch(
               v-model:value="selectedAccountId"
               :options="accountOptions"
               placeholder="切换账号..."
-              show-search
-              option-filter-prop="label"
               size="small"
               class="w-full"
             >
-              <template #option="{ label: optLabel, uin }">
-                <div class="flex items-center gap-2">
-                  <a-avatar :size="18" :src="uin ? `https://q1.qlogo.cn/g?b=qq&nk=${uin}&s=100` : undefined">
+              <template #optionRender="{ option }">
+                <div class="flex items-center gap-1">
+                  <i class="text-primary" :class="getPlatformIcon(option.data?.platform)" />
+                  <a-avatar :size="18" :src="option.data?.uin ? `https://q1.qlogo.cn/g?b=qq&nk=${option.data.uin}&s=100` : undefined" class="bg-green-2">
                     <template #icon>
-                      <UserOutlined />
+                      <div class="i-twemoji-farmer" />
                     </template>
                   </a-avatar>
-                  <span>{{ optLabel }}</span>
+                  <span>{{ option.data?.label }}</span>
                 </div>
               </template>
             </a-select>
@@ -316,11 +322,10 @@ watch(
         <a-avatar
           :size="36"
           :src="currentAccount?.uin ? `https://q1.qlogo.cn/g?b=qq&nk=${currentAccount.uin}&s=100` : undefined"
-          class="cursor-pointer shadow-sm ring-2 transition-shadow hover:shadow"
-          style="--un-ring-color: var(--ant-color-primary-bg)"
+          class="shrink-0 bg-green-2 ring-2"
         >
           <template #icon>
-            <UserOutlined />
+            <div class="i-twemoji-farmer" />
           </template>
         </a-avatar>
       </div>
@@ -374,7 +379,7 @@ watch(
 
   <!-- Mobile drawer -->
   <a-drawer
-    class="lg:hidden"
+    class="xl:hidden"
     placement="left"
     :open="sidebarOpen"
     :size="280"
@@ -385,34 +390,39 @@ watch(
     <div class="h-full flex flex-col a-bg-container">
       <!-- Brand -->
       <div
-        class="flex shrink-0 items-center gap-2.5 border-b border-b-solid px-4 a-border-b-border-sec"
-        style="height: 48px"
+        class="brand-header h-12 flex shrink-0 items-center gap-2 border-b border-b-solid px-4 a-border-b-border-sec"
       >
-        <div class="i-twemoji-seedling text-xl" />
-        <span class="text-base font-bold a-color-text">QQ农场助手</span>
+        <div class="brand-icon relative flex items-center justify-center">
+          <div class="i-twemoji-seedling shrink-0 text-xl" />
+        </div>
+        <span class="brand-title whitespace-nowrap text-lg font-bold tracking-wide font-serif">QQ农场助手</span>
+        <span class="brand-sparkle text-xs">✦</span>
       </div>
 
       <!-- Account -->
       <div class="px-3 py-3">
         <div class="overflow-hidden border rounded-xl border-solid shadow-sm a-border-border-sec">
           <div class="flex items-center gap-3 px-3 py-2.5 a-bg-primary-bg">
-            <a-avatar
-              :size="40"
-              :src="currentAccount?.uin ? `https://q1.qlogo.cn/g?b=qq&nk=${currentAccount.uin}&s=100` : undefined"
-              class="shrink-0 shadow-sm ring-2"
-              style="--un-ring-color: var(--ant-color-bg-container)"
-            >
-              <template #icon>
-                <UserOutlined />
-              </template>
-            </a-avatar>
-            <div class="min-w-0 flex-1">
+            <div class="relative">
+              <a-avatar
+                :size="40"
+                :src="currentAccount?.uin ? `https://q1.qlogo.cn/g?b=qq&nk=${currentAccount.uin}&s=100` : undefined"
+                class="shrink-0 bg-green-2 ring-2"
+              >
+                <template #icon>
+                  <div class="i-twemoji-farmer text-xl" />
+                </template>
+              </a-avatar>
+
+              <div v-if="platformIcon" class="absolute shrink-0 text-[13px] text-primary -bottom-0.7 -right-1" :class="platformIcon" />
+            </div>
+
+            <div class="min-w-0 flex flex-1 flex-col gap-0.5">
               <div class="truncate text-base font-semibold leading-snug a-color-text">
-                {{ displayName }}
+                {{ displayInfo.primary }}
               </div>
-              <div class="flex items-center gap-1.5 truncate text-sm a-color-text-tertiary">
-                <span v-if="platform" class="shrink-0 text-xs font-medium a-color-primary-text">{{ platform }}</span>
-                {{ currentAccount?.uin || '未选择账号' }}
+              <div class="truncate text-sm leading-snug a-color-text-tertiary">
+                {{ displayInfo.secondary }}
               </div>
             </div>
             <a-badge :status="connectionStatus.badge" />
@@ -423,19 +433,18 @@ watch(
               v-model:value="selectedAccountId"
               :options="accountOptions"
               placeholder="切换账号..."
-              show-search
-              option-filter-prop="label"
               size="small"
               class="w-full"
             >
-              <template #option="{ label: optLabel, uin }">
+              <template #optionRender="{ option }">
                 <div class="flex items-center gap-2">
-                  <a-avatar :size="18" :src="uin ? `https://q1.qlogo.cn/g?b=qq&nk=${uin}&s=100` : undefined">
+                  <i class="text-primary" :class="getPlatformIcon(option.data?.platform)" />
+                  <a-avatar :size="18" :src="option.data?.uin ? `https://q1.qlogo.cn/g?b=qq&nk=${option.data.uin}&s=100` : undefined" class="bg-green-2">
                     <template #icon>
-                      <UserOutlined />
+                      <div class="i-twemoji-farmer" />
                     </template>
                   </a-avatar>
-                  <span>{{ optLabel }}</span>
+                  <span>{{ option.data?.label }}</span>
                 </div>
               </template>
             </a-select>
@@ -512,3 +521,49 @@ watch(
     @saved="handleAccountSaved"
   />
 </template>
+
+<style scoped>
+.brand-title {
+  background: linear-gradient(135deg, #15803d 0%, #22c55e 50%, #16a34a 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-sparkle {
+  color: #4ade80;
+  animation: sparkle-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes sparkle-pulse {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-sparkle {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+:deep(.dark) .brand-title,
+.dark .brand-title {
+  background: linear-gradient(135deg, #86efac 0%, #4ade80 50%, #6ee7b7 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+:deep(.dark) .brand-sparkle,
+.dark .brand-sparkle {
+  color: #86efac;
+}
+</style>

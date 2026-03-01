@@ -82,11 +82,11 @@ async function save() {
         </template>
       </a-avatar>
       <div class="min-w-0 flex-1">
-        <div class="truncate text-base font-medium">
-          {{ account.name || account.nick || account.id }}
+        <div class="truncate font-medium">
+          {{ account.nick }}
         </div>
         <div class="text-sm a-color-text-tertiary">
-          {{ account.uin || '未绑定' }}
+          {{ account.name || account.uid || '未命名' }}
         </div>
       </div>
     </div>

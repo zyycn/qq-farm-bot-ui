@@ -26,26 +26,6 @@ export default defineConfig({
     }),
   ],
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router') || id.includes('@vueuse')) {
-              return 'vendor-vue'
-            }
-            if (id.includes('axios')) {
-              return 'vendor-axios'
-            }
-            // Split other large dependencies if needed
-            if (id.includes('echarts') || id.includes('zrender')) {
-              return 'vendor-echarts'
-            }
-            // Default vendor chunk
-            return 'vendor'
-          }
-        },
-      },
-    },
     chunkSizeWarningLimit: 1000,
   },
   define: {

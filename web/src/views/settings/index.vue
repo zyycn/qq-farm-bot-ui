@@ -389,7 +389,7 @@ async function handleSaveOffline() {
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-3 overflow-y-auto">
+  <div class="h-full flex flex-col gap-3">
     <a-spin v-if="loading" class="flex-1 items-center justify-center !flex" />
 
     <template v-else>
@@ -579,7 +579,7 @@ async function handleSaveOffline() {
       </a-card>
 
       <!-- Section 4: System -->
-      <div class="grid grid-cols-1 shrink-0 gap-3 md:grid-cols-2">
+      <div class="grid grid-cols-1 shrink-0 gap-3 pb-3 md:grid-cols-2">
         <!-- Password -->
         <a-card variant="borderless" :classes="{ body: '!p-4' }">
           <div class="mb-3 flex items-center justify-between">

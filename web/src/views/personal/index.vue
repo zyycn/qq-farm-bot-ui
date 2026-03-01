@@ -160,8 +160,8 @@ onUnmounted(() => {
       <!-- Left: Land Grid -->
       <a-card variant="borderless" class="flex-1 overflow-hidden" :classes="{ body: '!p-0 !h-full !flex !flex-col' }">
         <!-- Stats bar -->
-        <div class="flex items-center justify-between gap-2 border-b border-b-solid px-3 py-2 a-border-b-border-sec">
-          <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-b-solid px-3 py-2 a-border-b-border-sec">
+          <div class="min-w-0 flex shrink flex-wrap items-center gap-2">
             <div class="flex items-center gap-1.5 rounded-lg px-2.5 py-1 a-bg-fill-tertiary">
               <div class="i-twemoji-sheaf-of-rice text-base" />
               <span class="text-sm a-color-text-secondary">可收</span>
@@ -185,7 +185,7 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <div class="flex items-center gap-1">
+          <div class="flex shrink-0 flex-wrap items-center justify-end gap-1">
             <a-tooltip v-for="op in operations" :key="op.type" :title="op.label" placement="bottom">
               <a-button
                 :disabled="operating || !connected"

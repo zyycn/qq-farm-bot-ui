@@ -141,7 +141,7 @@ function formatGrowTime(seconds: any) {
 
 const columns = [
   { title: '#', key: 'rank', width: 50, align: 'center', fixed: 'left' },
-  { title: '作物', dataIndex: 'name', key: 'name', fixed: 'left', width: 200 },
+  { title: '作物', dataIndex: 'name', key: 'name', fixed: 'left', width: 150 },
   { title: '生长时间', dataIndex: 'growTime', key: 'growTime', width: 110 },
   { title: '经验/时', dataIndex: 'expPerHour', key: 'expPerHour', width: 100 },
   { title: '肥料经验/时', dataIndex: 'normalFertilizerExpPerHour', key: 'normalFertilizerExpPerHour', width: 120 },

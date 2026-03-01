@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { theme } from 'antdv-next'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { RouterView } from 'vue-router'
 import { useAppStore } from '@/stores/app'
 
@@ -20,10 +20,6 @@ const themeConfig = computed(() => ({
     borderRadius: themeTokens.value.borderRadius,
   },
 }))
-
-onMounted(() => {
-  appStore.fetchTheme()
-})
 </script>
 
 <template>

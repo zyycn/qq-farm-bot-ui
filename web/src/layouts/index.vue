@@ -18,23 +18,22 @@ function logout() {
 </script>
 
 <template>
-  <a-layout class="h-screen w-screen overflow-hidden a-bg-layout">
+  <a-layout class="h-[100dvh] w-screen a-bg-layout">
     <Sidebar />
 
     <a-layout>
       <a-layout-header
-        class="flex items-center justify-between border-b border-b-solid px-3 a-bg-container a-border-b-border-sec"
-        style="height: 48px; line-height: 48px"
+        class="flex items-center justify-between border-b border-b-solid px-3 a-bg-container a-border-b-border-sec h-12!"
       >
         <div class="flex items-center">
-          <a-button class="hidden lg:inline-flex" type="text" @click="appStore.toggleSidebarCollapsed()">
+          <a-button class="hidden xl:inline-flex" type="text" @click="appStore.toggleSidebarCollapsed()">
             <template #icon>
               <MenuUnfoldOutlined v-if="sidebarCollapsed" />
               <MenuFoldOutlined v-else />
             </template>
           </a-button>
 
-          <a-button class="lg:hidden" type="text" @click="appStore.toggleSidebar()">
+          <a-button class="xl:hidden" type="text" @click="appStore.toggleSidebar()">
             <template #icon>
               <MenuOutlined />
             </template>
@@ -52,12 +51,14 @@ function logout() {
         </a-button>
       </a-layout-header>
 
-      <a-layout-content class="overflow-y-auto p-1 md:p-3 sm:p-2">
-        <RouterView v-slot="{ Component, route }">
-          <Transition name="slide-fade" mode="out-in">
-            <component :is="Component" :key="route.path" />
-          </Transition>
-        </RouterView>
+      <a-layout-content class="overflow-y-auto p-3">
+        <div class="h-full">
+          <RouterView v-slot="{ Component, route }">
+            <Transition name="slide-fade" mode="out-in">
+              <component :is="Component" :key="route.path" />
+            </Transition>
+          </RouterView>
+        </div>
       </a-layout-content>
     </a-layout>
   </a-layout>

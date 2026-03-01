@@ -330,7 +330,7 @@ const opButtons = [
           <!-- Mobile operations -->
           <div
             v-if="expandedFriends.has(friend.gid)"
-            class="flex flex-wrap gap-1.5 border-t border-dashed border-t-solid px-4 py-2 a-border-t-border-sec sm:hidden"
+            class="flex flex-wrap gap-1.5 px-4 py-2 a-border-t-border-sec sm:hidden"
           >
             <a-button
               v-for="op in opButtons"

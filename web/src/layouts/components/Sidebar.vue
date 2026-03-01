@@ -383,7 +383,7 @@ watch(
     class="xl:hidden"
     placement="left"
     :open="sidebarOpen"
-    :size="280"
+    :size="230"
     :closable="false"
     :styles="{ body: { padding: '0px' } }"
     @close="appStore.closeSidebar()"
@@ -396,7 +396,7 @@ watch(
         <div class="brand-icon relative flex items-center justify-center">
           <img src="/icon.ico" alt="" class="h-8 w-8 shrink-0">
         </div>
-        <span class="brand-title whitespace-nowrap text-lg font-bold tracking-wide font-serif">QQ农场助手</span>
+        <span class="brand-title whitespace-nowrap text-lg font-bold tracking-wide font-serif">经典农场助手</span>
         <span class="brand-plus">PLUS</span>
         <span class="brand-sparkle text-xs">✦</span>
       </div>

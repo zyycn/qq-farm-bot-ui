@@ -33,7 +33,6 @@ const searchQuery = defineModel<string>('searchQuery', { required: true })
     </div>
 
     <div class="flex items-center gap-3">
-      <span v-if="totalCount" class="text-sm a-color-text-tertiary">{{ totalCount }} 种作物</span>
       <a-input v-model:value="searchQuery" placeholder="搜索作物..." allow-clear class="!w-48">
         <template #prefix>
           <div class="i-twemoji-magnifying-glass-tilted-left text-sm" />

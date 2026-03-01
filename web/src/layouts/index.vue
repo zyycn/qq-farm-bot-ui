@@ -11,13 +11,11 @@ import Sidebar from './components/Sidebar.vue'
       <LayoutHeader />
 
       <a-layout-content class="overflow-y-auto p-3">
-        <div class="min-h-full md:h-full">
-          <RouterView v-slot="{ Component, route }">
-            <Transition name="slide-fade" mode="out-in">
-              <component :is="Component" :key="route.path" />
-            </Transition>
-          </RouterView>
-        </div>
+        <RouterView v-slot="{ Component, route }">
+          <Transition name="slide-fade" mode="out-in">
+            <component :is="Component" :key="route.path" />
+          </Transition>
+        </RouterView>
       </a-layout-content>
     </a-layout>
   </a-layout>

@@ -225,7 +225,7 @@ useIntervalFn(updateCountdowns, 1000)
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-3">
+  <div class="flex flex-col gap-3 md:h-full">
     <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
       <AccountExpCard
         :display-name="displayName"

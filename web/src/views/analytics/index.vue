@@ -18,7 +18,7 @@ const tableScrollY = ref<number | undefined>(undefined)
 useResizeObserver(tableWrapperRef, (entries) => {
   const h = entries[0]?.contentRect.height
   if (h) {
-    tableScrollY.value = Math.max(h - 55, 200)
+    tableScrollY.value = Math.max(h - 105, 200)
   }
 })
 

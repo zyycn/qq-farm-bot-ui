@@ -75,13 +75,13 @@ async function save() {
       <a-avatar
         :size="36"
         :src="account.uin ? `https://q1.qlogo.cn/g?b=qq&nk=${account.uin}&s=100` : undefined"
-        class="shrink-0"
+        class="shrink-0 bg-green-2 ring-2"
       >
         <template #icon>
           <div class="i-twemoji-farmer" />
         </template>
       </a-avatar>
-      <div class="min-w-0 flex-1">
+      <div class="min-w-0 flex flex-1 flex-col gap-0.5">
         <div class="truncate font-medium">
           {{ account.nick }}
         </div>
@@ -101,7 +101,7 @@ async function save() {
       </a-form-item>
     </a-form>
 
-    <div class="flex items-center justify-end gap-2 border-t border-t-solid pt-3 a-border-t-border-sec">
+    <div class="flex items-center justify-end gap-2 a-border-t-border-sec">
       <a-button :disabled="loading" @click="$emit('close')">
         取消
       </a-button>

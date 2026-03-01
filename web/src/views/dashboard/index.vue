@@ -527,30 +527,30 @@ useIntervalFn(updateCountdowns, 1000)
           :classes="{ body: '!flex !flex-col !flex-1 !overflow-hidden !p-4' }"
         >
           <div class="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex items-center gap-2 text-base font-medium a-color-text">
+            <div class="mr-2.5 flex items-center gap-2 text-base font-medium a-color-text">
               <div class="i-twemoji-scroll text-lg" />
-              农场日志
+              <span class="whitespace-nowrap">农场日志</span>
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <a-select
                 v-model:value="filter.module"
                 :options="modules"
                 size="small"
-                style="width: 7rem"
+                class="w-28"
                 @change="onLogFilterChange"
               />
               <a-select
                 v-model:value="filter.event"
                 :options="events"
                 size="small"
-                style="width: 7rem"
+                class="w-28"
                 @change="onLogFilterChange"
               />
               <a-select
                 v-model:value="filter.isWarn"
                 :options="logLevels"
                 size="small"
-                style="width: 7rem"
+                class="w-28"
                 @change="onLogFilterChange"
               />
               <a-input
@@ -558,8 +558,8 @@ useIntervalFn(updateCountdowns, 1000)
                 placeholder="搜索..."
                 allow-clear
                 size="small"
-                style="width: 7rem"
-                @press-enter="refresh"
+                class="w-28"
+                @press-enter="onLogSearchTrigger"
                 @change="onLogSearchTrigger"
               />
               <a-button type="primary" size="small" @click="onLogSearchTrigger">

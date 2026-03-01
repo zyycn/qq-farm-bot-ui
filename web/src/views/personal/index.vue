@@ -14,10 +14,10 @@ const accountStore = useAccountStore()
 const statusStore = useStatusStore()
 const bagStore = useBagStore()
 
-const { lands, summary, loading: farmLoading } = storeToRefs(farmStore)
+const { lands, summary } = storeToRefs(farmStore)
 const { currentAccountId, currentAccount } = storeToRefs(accountStore)
-const { status, dailyGifts, loading: statusLoading, realtimeConnected } = storeToRefs(statusStore)
-const { items: bagItems, loading: bagLoading } = storeToRefs(bagStore)
+const { status, dailyGifts, realtimeConnected } = storeToRefs(statusStore)
+const { items: bagItems } = storeToRefs(bagStore)
 
 const operating = ref(false)
 const confirmVisible = ref(false)
@@ -203,13 +203,11 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="min-h-0 flex-1 overflow-y-auto p-3">
-          <a-spin :spinning="farmLoading || statusLoading">
-            <a-empty v-if="!connected" description="账号未连接" class="pt-12" />
-            <a-empty v-else-if="!lands || lands.length === 0" description="暂无土地数据" class="pt-12" />
-            <div v-else class="grid grid-cols-2 gap-2.5 lg:grid-cols-4 md:grid-cols-3 xl:grid-cols-5">
-              <LandCard v-for="land in lands" :key="land.id" :land="land" />
-            </div>
-          </a-spin>
+          <a-empty v-if="!connected" description="账号未连接" class="pt-12" />
+          <a-empty v-else-if="!lands || lands.length === 0" description="暂无土地数据" class="pt-12" />
+          <div v-else class="grid grid-cols-2 gap-2.5 lg:grid-cols-4 md:grid-cols-3 xl:grid-cols-5">
+            <LandCard v-for="land in lands" :key="land.id" :land="land" />
+          </div>
         </div>
       </a-card>
 
@@ -287,8 +285,7 @@ onUnmounted(() => {
             <span v-if="bagItems.length" class="text-sm a-color-text-tertiary">{{ bagItems.length }} 种</span>
           </div>
           <div class="min-h-0 flex-1 overflow-y-auto">
-            <a-spin v-if="bagLoading" class="items-center justify-center py-4 !flex" />
-            <a-empty v-else-if="!bagItems.length" description="背包空空" :image-style="{ height: '32px' }" />
+            <a-empty v-if="!bagItems.length" description="背包空空" :image-style="{ height: '32px' }" />
             <div v-else class="space-y-1">
               <div
                 v-for="item in bagItems"

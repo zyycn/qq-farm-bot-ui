@@ -396,11 +396,7 @@ async function handleSaveOffline() {
       <!-- Section 1: Account Info -->
       <a-card variant="borderless" class="shrink-0" :classes="{ body: '!px-4 !py-3' }">
         <div v-if="currentAccountId" class="flex items-center gap-4">
-          <a-avatar
-            :size="44"
-            :src="currentAccountAvatar"
-            class="shrink-0 bg-green-2 ring-2"
-          >
+          <a-avatar :size="44" :src="currentAccountAvatar" class="shrink-0 bg-green-2 ring-2">
             <template #icon>
               <div class="i-twemoji-farmer text-xl" />
             </template>
@@ -563,9 +559,7 @@ async function handleSaveOffline() {
             <a-switch v-model:checked="localSettings.automation.friend_bad" size="small" /><span>捣乱</span>
           </label>
           <label class="flex cursor-pointer items-center gap-2">
-            <a-switch v-model:checked="localSettings.automation.friend_help_exp_limit" size="small" /><span
-              class="text-base"
-            >经验上限停帮</span>
+            <a-switch v-model:checked="localSettings.automation.friend_help_exp_limit" size="small" /><span>经验上限停帮</span>
           </label>
         </div>
 

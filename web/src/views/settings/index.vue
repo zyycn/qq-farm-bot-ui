@@ -389,10 +389,8 @@ async function handleSaveOffline() {
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-3">
-    <a-spin v-if="loading" class="flex-1 items-center justify-center !flex" />
-
-    <template v-else>
+  <a-spin :spinning="loading" class="h-full">
+    <div class="h-full flex flex-col gap-3">
       <!-- Section 1: Account Info -->
       <a-card variant="borderless" class="shrink-0" :classes="{ body: '!px-4 !py-3' }">
         <div v-if="currentAccountId" class="flex items-center gap-4">
@@ -444,12 +442,11 @@ async function handleSaveOffline() {
               <a-select v-model:value="localSettings.preferredSeedId" :options="preferredSeedOptions" />
             </a-form-item>
           </a-form>
-          <div v-else class="flex flex-col gap-1 lg:col-span-2">
-            <span class="text-sm a-color-text-secondary">策略预览</span>
-            <div class="h-8 flex items-center rounded-lg px-3 text-base a-color-text a-bg-fill-tertiary">
-              {{ strategyPreviewLabel ?? '加载中...' }}
-            </div>
-          </div>
+          <a-form v-else layout="vertical">
+            <a-form-item label="策略预览">
+              <a-input :value="strategyPreviewLabel ?? '加载中...'" disabled />
+            </a-form-item>
+          </a-form>
           <a-form layout="vertical">
             <a-form-item label="农场最小(秒)">
               <a-input-number v-model:value="localSettings.intervals.farmMin" :min="1" style="width: 100%" />
@@ -653,7 +650,7 @@ async function handleSaveOffline() {
           </a-form>
         </a-card>
       </div>
-    </template>
+    </div>
 
     <ConfirmModal
       :show="modalVisible"
@@ -665,5 +662,5 @@ async function handleSaveOffline() {
       @confirm="modalVisible = false"
       @cancel="modalVisible = false"
     />
-  </div>
+  </a-spin>
 </template>

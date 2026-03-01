@@ -203,12 +203,13 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="min-h-0 flex-1 overflow-y-auto p-3">
-          <a-spin v-if="farmLoading || statusLoading" class="h-full items-center justify-center !flex" />
-          <a-empty v-else-if="!connected" description="账号未连接" class="pt-12" />
-          <a-empty v-else-if="!lands || lands.length === 0" description="暂无土地数据" class="pt-12" />
-          <div v-else class="grid grid-cols-2 gap-2.5 lg:grid-cols-4 md:grid-cols-3 xl:grid-cols-5">
-            <LandCard v-for="land in lands" :key="land.id" :land="land" />
-          </div>
+          <a-spin :spinning="farmLoading || statusLoading">
+            <a-empty v-if="!connected" description="账号未连接" class="pt-12" />
+            <a-empty v-else-if="!lands || lands.length === 0" description="暂无土地数据" class="pt-12" />
+            <div v-else class="grid grid-cols-2 gap-2.5 lg:grid-cols-4 md:grid-cols-3 xl:grid-cols-5">
+              <LandCard v-for="land in lands" :key="land.id" :land="land" />
+            </div>
+          </a-spin>
         </div>
       </a-card>
 

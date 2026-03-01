@@ -9,7 +9,7 @@ import { getPlatformIcon, useAccountStore } from '@/stores/account'
 
 const router = useRouter()
 const accountStore = useAccountStore()
-const { accounts, loading } = storeToRefs(accountStore)
+const { accounts } = storeToRefs(accountStore)
 
 const showModal = ref(false)
 const showDeleteConfirm = ref(false)
@@ -96,9 +96,7 @@ function getDisplayName(acc: any) {
       </a-button>
     </div>
 
-    <a-spin v-if="loading && accounts.length === 0" class="flex-1 items-center justify-center !flex" />
-
-    <div v-else-if="accounts.length === 0" class="flex flex-1 flex-col items-center justify-center gap-4">
+    <div v-if="accounts.length === 0" class="flex flex-1 flex-col items-center justify-center gap-4">
       <div class="i-twemoji-bust-in-silhouette text-6xl opacity-20" />
       <div class="text-center">
         <div class="text-base font-medium a-color-text-secondary">

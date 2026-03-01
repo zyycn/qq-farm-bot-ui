@@ -345,7 +345,7 @@ watch(
           ]"
           @click="onMenuClick(item.key)"
         >
-          <div class="shrink-0 text-[17px]" :class="item.icon" />
+          <div class="shrink-0 text-[17px] transition-all duration-350 group-hover:scale-115" :class="item.icon" />
           <span v-if="!sidebarCollapsed" class="truncate text-[14px]">{{ item.label }}</span>
         </div>
       </nav>

@@ -15,7 +15,7 @@ const hasAccount = computed(() => !!currentAccountId.value)
 const tableWrapperRef = ref<HTMLElement | null>(null)
 const tableScrollY = ref<number | undefined>(undefined)
 
-useResizeObserver(tableWrapperRef, (entries) => {
+useResizeObserver(tableWrapperRef, entries => {
   const h = entries[0]?.contentRect.height
   if (h) {
     tableScrollY.value = Math.max(h - 105, 200)
@@ -29,19 +29,17 @@ const searchQuery = ref('')
 
 const filteredList = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
-  if (!q)
-    return list.value
+  if (!q) return list.value
   return list.value.filter(
     item =>
-      (item.name || '').toLowerCase().includes(q)
-      || String(item.seedId || '').includes(q)
-      || String(item.level || '').includes(q),
+      (item.name || '').toLowerCase().includes(q) ||
+      String(item.seedId || '').includes(q) ||
+      String(item.level || '').includes(q)
   )
 })
 
 async function loadAnalytics() {
-  if (!currentAccountId.value)
-    return
+  if (!currentAccountId.value) return
   loading.value = true
   try {
     const res = await analyticsApi.fetchAnalytics(sortKey.value)
@@ -53,25 +51,19 @@ async function loadAnalytics() {
         list.value.sort((a, b) => {
           const av = Number(a[metric])
           const bv = Number(b[metric])
-          if (!Number.isFinite(av) && !Number.isFinite(bv))
-            return 0
-          if (!Number.isFinite(av))
-            return 1
-          if (!Number.isFinite(bv))
-            return -1
+          if (!Number.isFinite(av) && !Number.isFinite(bv)) return 0
+          if (!Number.isFinite(av)) return 1
+          if (!Number.isFinite(bv)) return -1
           return bv - av
         })
       }
-    }
-    else {
+    } else {
       list.value = []
     }
-  }
-  catch (e) {
+  } catch (e) {
     console.error(e)
     list.value = []
-  }
-  finally {
+  } finally {
     loading.value = false
   }
 }
@@ -87,16 +79,14 @@ watch([currentAccountId, sortKey], () => {
 
 <template>
   <div class="h-full flex flex-col gap-3">
-    <div class="flex items-center gap-2 text-base font-bold a-color-text">
+    <div class="flex items-center gap-2 font-bold a-color-text">
       <div class="i-twemoji-bar-chart text-lg" />
       数据分析
     </div>
 
     <div v-if="!hasAccount" class="flex flex-1 flex-col items-center justify-center gap-3">
       <div class="i-twemoji-bar-chart text-5xl opacity-30" />
-      <div class="text-base a-color-text-tertiary">
-        请先在侧边栏选择账号
-      </div>
+      <div class="a-color-text-tertiary">请先在侧边栏选择账号</div>
     </div>
 
     <a-card

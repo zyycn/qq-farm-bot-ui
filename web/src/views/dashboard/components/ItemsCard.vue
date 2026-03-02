@@ -7,10 +7,8 @@ defineProps<{
 }>()
 
 function formatBucketTime(item: any): string {
-  if (!item)
-    return '0.0h'
-  if (item.hoursText)
-    return item.hoursText.replace('小时', 'h')
+  if (!item) return '0.0h'
+  if (item.hoursText) return item.hoursText.replace('小时', 'h')
   const count = Number(item.count || 0)
   return `${(count / 3600).toFixed(1)}h`
 }
@@ -22,22 +20,22 @@ function formatBucketTime(item: any): string {
       <div class="flex flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-3 a-bg-fill-tertiary">
         <div class="i-twemoji-droplet text-2xl" />
         <span class="text-center text-sm a-color-text-secondary">普通化肥</span>
-        <span class="text-base font-bold a-color-text">{{ formatBucketTime(fertilizerNormal) }}</span>
+        <span class="font-bold a-color-text">{{ formatBucketTime(fertilizerNormal) }}</span>
       </div>
       <div class="flex flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-3 a-bg-fill-tertiary">
         <div class="i-twemoji-herb text-2xl" />
         <span class="text-center text-sm a-color-text-secondary">有机化肥</span>
-        <span class="text-base font-bold a-color-text">{{ formatBucketTime(fertilizerOrganic) }}</span>
+        <span class="font-bold a-color-text">{{ formatBucketTime(fertilizerOrganic) }}</span>
       </div>
       <div class="flex flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-3 a-bg-fill-tertiary">
         <div class="i-twemoji-four-leaf-clover text-2xl" />
         <span class="text-center text-sm a-color-text-secondary">普通收藏</span>
-        <span class="text-base font-bold a-color-text">{{ collectionNormal?.count || 0 }}</span>
+        <span class="font-bold a-color-text">{{ collectionNormal?.count || 0 }}</span>
       </div>
       <div class="flex flex-col items-center justify-center gap-1.5 rounded-lg px-2 py-3 a-bg-fill-tertiary">
         <div class="i-twemoji-gem-stone text-2xl" />
         <span class="text-center text-sm a-color-text-secondary">典藏收藏</span>
-        <span class="text-base font-bold a-color-text">{{ collectionRare?.count || 0 }}</span>
+        <span class="font-bold a-color-text">{{ collectionRare?.count || 0 }}</span>
       </div>
     </div>
   </a-card>

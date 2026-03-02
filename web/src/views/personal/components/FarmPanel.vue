@@ -3,7 +3,7 @@ import LandCard from '@/components/LandCard.vue'
 
 defineProps<{
   lands: any[]
-  summary?: { harvestable?: number, growing?: number, empty?: number, dead?: number } | null
+  summary?: { harvestable?: number; growing?: number; empty?: number; dead?: number } | null
   connected?: boolean
   operating?: boolean
 }>()
@@ -17,7 +17,7 @@ const operations = [
   { type: 'clear', label: '除草', icon: 'i-twemoji-herb' },
   { type: 'plant', label: '种植', icon: 'i-twemoji-seedling' },
   { type: 'upgrade', label: '升级', icon: 'i-twemoji-building-construction' },
-  { type: 'all', label: '全收', icon: 'i-twemoji-sparkles' },
+  { type: 'all', label: '全收', icon: 'i-twemoji-sparkles' }
 ]
 
 function handleOperate(opType: string) {
@@ -27,28 +27,30 @@ function handleOperate(opType: string) {
 
 <template>
   <a-card variant="borderless" class="flex-1 overflow-hidden" :classes="{ body: '!p-0 !h-full !flex !flex-col' }">
-    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-b-solid px-3 py-2 a-border-b-border-sec">
+    <div
+      class="flex flex-wrap items-center justify-between gap-2 border-b border-b-solid px-3 py-2 a-border-b-border-sec"
+    >
       <div class="min-w-0 flex shrink flex-wrap items-center gap-2">
         <div class="flex items-center gap-1.5 rounded-lg px-2.5 py-1 a-bg-fill-tertiary">
-          <div class="i-twemoji-sheaf-of-rice text-base" />
+          <div class="i-twemoji-sheaf-of-rice" />
           <span class="text-sm a-color-text-secondary">可收</span>
-          <span class="text-base font-bold a-color-text">{{ summary?.harvestable || 0 }}</span>
+          <span class="font-bold a-color-text">{{ summary?.harvestable || 0 }}</span>
         </div>
         <div class="flex items-center gap-1.5 rounded-lg px-2.5 py-1 a-bg-fill-tertiary">
-          <div class="i-twemoji-seedling text-base" />
+          <div class="i-twemoji-seedling" />
           <span class="text-sm a-color-text-secondary">生长</span>
-          <span class="text-base font-bold a-color-text">{{ summary?.growing || 0 }}</span>
+          <span class="font-bold a-color-text">{{ summary?.growing || 0 }}</span>
         </div>
         <div class="flex items-center gap-1.5 rounded-lg px-2.5 py-1 a-bg-fill-tertiary">
           <span class="text-sm a-color-text-secondary">空闲</span>
-          <span class="text-base font-bold a-color-text">{{ summary?.empty || 0 }}</span>
+          <span class="font-bold a-color-text">{{ summary?.empty || 0 }}</span>
         </div>
         <div
           v-if="(summary?.dead || 0) > 0"
           class="flex items-center gap-1.5 rounded-lg px-2.5 py-1 a-bg-fill-tertiary"
         >
           <span class="text-sm a-color-text-secondary">枯萎</span>
-          <span class="text-base font-bold a-color-error">{{ summary?.dead || 0 }}</span>
+          <span class="font-bold a-color-error">{{ summary?.dead || 0 }}</span>
         </div>
       </div>
 
@@ -62,7 +64,7 @@ function handleOperate(opType: string) {
             @click="handleOperate(op.type)"
           >
             <template #icon>
-              <div class="text-base" :class="op.icon" />
+              <div class="" :class="op.icon" />
             </template>
             <span class="hidden xl:inline">{{ op.label }}</span>
           </a-button>

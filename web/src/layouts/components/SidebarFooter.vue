@@ -8,7 +8,7 @@ defineProps<{
   formattedTime: Ref<string> | string
   version: string
   serverVersion: string
-  connectionStatus: { text: string, badge: 'error' | 'default' | 'processing' }
+  connectionStatus: { text: string; badge: 'error' | 'default' | 'processing' }
 }>()
 </script>
 
@@ -23,7 +23,7 @@ defineProps<{
     <template v-else>
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-1.5 text-sm a-color-text-tertiary">
-          <div class="i-twemoji-timer-clock text-base" />
+          <div class="i-twemoji-timer-clock" />
           {{ uptime }}
         </div>
         <ThemeToggle />

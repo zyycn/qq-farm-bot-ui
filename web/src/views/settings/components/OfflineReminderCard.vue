@@ -25,14 +25,15 @@ const localOffline = defineModel<{
 }>('localOffline', { required: true })
 
 const currentChannelDocUrl = computed(() => {
-  const key = String(localOffline.value.channel || '').trim().toLowerCase()
+  const key = String(localOffline.value.channel || '')
+    .trim()
+    .toLowerCase()
   return CHANNEL_DOCS[key] || ''
 })
 
 function openChannelDocs() {
   const url = currentChannelDocUrl.value
-  if (!url)
-    return
+  if (!url) return
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 </script>
@@ -40,13 +41,11 @@ function openChannelDocs() {
 <template>
   <a-card variant="borderless" :classes="{ body: '!p-4' }">
     <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2 text-base font-bold a-color-text">
-        <div class="i-twemoji-bell text-base" />
+      <div class="flex items-center gap-2 font-bold a-color-text">
+        <div class="i-twemoji-bell" />
         下线提醒
       </div>
-      <a-button type="primary" size="small" :loading="saving" @click="handleSave">
-        保存提醒设置
-      </a-button>
+      <a-button type="primary" size="small" :loading="saving" @click="handleSave"> 保存提醒设置 </a-button>
     </div>
     <a-form layout="vertical">
       <div class="grid grid-cols-2 gap-x-3">

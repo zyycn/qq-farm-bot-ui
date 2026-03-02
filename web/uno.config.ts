@@ -1,13 +1,15 @@
 import { presetAntd } from '@antdv-next/unocss'
-import { defineConfig, presetAttributify, presetIcons, presetUno, presetWebFonts } from 'unocss'
+import presetWebFonts from '@unocss/preset-web-fonts'
+import { createLocalFontProcessor } from '@unocss/preset-web-fonts/local'
+import { defineConfig, presetIcons, presetWind3 } from 'unocss'
 
 export default defineConfig({
   content: {
     pipeline: {
       include: [
-        /\.(vue|svelte|[jt]sx|mdx?|astro|elm|php|phtml|html)($|\?)/,
-        'src/**/*.{js,ts}',
+        /\.(vue|svelte|[jt]sx|[jt]s|vine.ts|mdx?|astro|elm|php|phtml|html)($|\?)/,
       ],
+      exclude: [/node_modules/],
     },
   },
   theme: {
@@ -20,8 +22,11 @@ export default defineConfig({
     },
   },
   presets: [
-    presetUno(),
-    presetAttributify(),
+    presetWind3(),
+    presetAntd({
+      prefix: 'a',
+      antPrefix: 'ant',
+    }),
     presetIcons({
       scale: 1.2,
       warn: true,
@@ -32,10 +37,11 @@ export default defineConfig({
         serif: 'DM Serif Display',
         mono: 'DM Mono',
       },
-    }),
-    presetAntd({
-      prefix: 'a',
-      antPrefix: 'ant',
+      processors: createLocalFontProcessor({
+        cacheDir: 'node_modules/.cache/unocss/fonts',
+        fontAssetsDir: 'public/fonts',
+        fontServeBaseUrl: '/fonts',
+      }),
     }),
   ],
 })

@@ -15,7 +15,7 @@ const OPERATION_KEYS = ['harvest', 'water', 'weed', 'bug', 'fertilize', 'plant',
 
 function createRuntimeEngine(options = {}) {
   const processRef = options.processRef || process
-  const mainEntryPath = options.mainEntryPath || path.join(__dirname, '../../client.js')
+  const mainEntryPath = options.mainEntryPath || path.join(__dirname, '../../dist/main.js')
   const bundledWorker = path.join(__dirname, '../worker/index.js')
   const devWorker = path.join(__dirname, '../core/worker.js')
   const workerScriptPath = options.workerScriptPath || (fs.existsSync(bundledWorker) ? bundledWorker : devWorker)

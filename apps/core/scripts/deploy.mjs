@@ -1,32 +1,39 @@
-#!/usr/bin/env node
-/**
- * Deploy script: ncc build + copy assets to dist
- */
-import { cpSync, existsSync, mkdirSync } from 'node:fs'
-import { dirname, join } from 'node:path'
 import { execSync } from 'node:child_process'
+import fs from 'node:fs'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const root = join(__dirname, '..')
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const root = path.join(__dirname, '..')
 
-const distRoot = join(root, 'dist')
-
-function run(cmd, opts = {}) {
-  execSync(cmd, { cwd: root, stdio: 'inherit', ...opts })
+const pkgTargets = {
+  release: 'node18-win-x64,node18-linux-x64,node18-macos-x64,node18-macos-arm64',
+  win: 'node18-win-x64',
+  linux: 'node18-linux-x64',
+  mac: 'node18-macos-x64,node18-macos-arm64',
 }
 
-console.log('\n📦 deploy start\n')
+const arg = process.argv[2] // --release | --win | --linux | --mac
 
-// Ensure dist dir exists
-if (!existsSync(distRoot)) mkdirSync(distRoot, { recursive: true })
+// 1. nest build
+execSync('nest build', { cwd: root, stdio: 'inherit' })
 
-// ncc build main + worker
-run('ncc build client.js -o dist/main')
-run('ncc build src/core/worker.js -o dist/worker')
+// 2. copy legacy -> dist/legacy
+const src = path.join(root, 'legacy')
+const dest = path.join(root, 'dist', 'legacy')
+if (!fs.existsSync(src)) {
+  console.warn('[deploy] legacy folder not found, skip copy')
+}
+else {
+  fs.cpSync(src, dest, { recursive: true })
+  console.log('[deploy] copied legacy -> dist/legacy')
+}
 
-// Copy proto and gameConfig to dist root
-cpSync(join(root, 'src/proto'), join(distRoot, 'proto'), { recursive: true })
-cpSync(join(root, 'src/gameConfig'), join(distRoot, 'gameConfig'), { recursive: true })
-
-console.log('\n✅ deploy done\n')
+// 3. pkg (optional)
+const targetKey = arg?.replace(/^--/, '')
+if (targetKey && pkgTargets[targetKey]) {
+  execSync(
+    `pkg . --no-bytecode --targets ${pkgTargets[targetKey]} --out-path release`,
+    { cwd: root, stdio: 'inherit' },
+  )
+}

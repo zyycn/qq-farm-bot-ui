@@ -6,14 +6,12 @@ node_modules
 # Build artifacts
 dist
 **/dist
-core/dist-*
-core/dist-nest
 web/stats.html
 coverage
 
 # Runtime data
 data
-core/data
+apps/core/data
 backup
 
 # VCS & dev files

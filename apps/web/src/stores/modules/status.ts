@@ -217,9 +217,7 @@ export const useStatusStore = defineStore('status', () => {
   async function fetchAccountLogs(limit = 100) {
     try {
       const res = await statusApi.fetchAccountLogs(limit)
-      if (Array.isArray(res.data)) {
-        accountLogs.value = res.data
-      }
+      accountLogs.value = Array.isArray(res) ? res : []
     }
     catch (e) {
       console.error(e)

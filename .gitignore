@@ -10,14 +10,12 @@ package-lock.json
 # Build artifacts
 dist/
 **/dist/
-core/dist-*/
-core/dist-nest/
 web/stats.html
 *.tsbuildinfo
 
 # Runtime data
 data/
-core/data/
+apps/core/data/
 
 # Logs
 *.log

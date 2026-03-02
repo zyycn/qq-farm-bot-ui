@@ -1,7 +1,12 @@
 packages:
-  - 'apps/*'
+  - apps/*
+
+overrides:
+  '@babel/traverse': '7.26.10'
 
 ignoredBuiltDependencies:
   - '@parcel/watcher'
   - esbuild
   - protobufjs
+
+onlyBuiltDependencies: ['@nestjs/core', 'better-sqlite3']

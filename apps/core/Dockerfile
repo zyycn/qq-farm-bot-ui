@@ -19,26 +19,32 @@ RUN pnpm install --frozen-lockfile
 COPY apps/core ./apps/core
 COPY apps/web ./apps/web
 
-# Build web + core (ncc bundles core to dist/, no node_modules needed)
+# Build web + core (NestJS)
 RUN pnpm build
 
 # ==========================================
 
 FROM node:20-alpine AS runner
 
-WORKDIR /app/core
+WORKDIR /app
 
 ENV NODE_ENV=production
 ENV TZ=Asia/Shanghai
 
-# Copy ncc bundle (no node_modules)
-COPY --from=builder /app/apps/core/dist ./
+# Copy workspace config and node_modules for runtime
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy core dist, legacy, and package.json
+COPY --from=builder /app/apps/core/dist ./apps/core/dist
+COPY --from=builder /app/apps/core/legacy ./apps/core/legacy
+COPY --from=builder /app/apps/core/package.json ./apps/core/
 
 # Copy web assets
-COPY --from=builder /app/apps/web/dist ../web/dist
+COPY --from=builder /app/apps/web/dist ./apps/web/dist
 
-# Expose port
+WORKDIR /app/apps/core
+
 EXPOSE 3000
 
-# Start command
-CMD ["node", "main/index.js"]
+CMD ["node", "dist/main.js"]

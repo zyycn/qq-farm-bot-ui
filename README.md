@@ -7,8 +7,9 @@
 **后端**
 
 [<img src="https://skillicons.dev/icons?i=nodejs" height="48" title="Node.js 20+" />](https://nodejs.org/)
-[<img src="https://skillicons.dev/icons?i=express" height="48" title="Express 4" />](https://expressjs.com/)
-[<img src="https://skillicons.dev/icons?i=socketio" height="48" title="Socket.io 4" />](https://socket.io/)
+[<img src="https://skillicons.dev/icons?i=nestjs" height="48" title="NestJS 11" />](https://nestjs.com/)
+[<img src="https://skillicons.dev/icons?i=sqlite" height="48" title="SQLite + Drizzle ORM" />](https://www.sqlite.org/)
+[<img src="https://skillicons.dev/icons?i=aiscript" height="48" title="Socket.io 4" />](https://socket.io/)
 
 **前端**
 
@@ -16,7 +17,8 @@
 [<img src="https://skillicons.dev/icons?i=vite" height="48" title="Vite 7" />](https://vitejs.dev/)
 [<img src="https://skillicons.dev/icons?i=ts" height="48" title="TypeScript 5" />](https://www.typescriptlang.org/)
 [<img src="https://cdn.simpleicons.org/pinia/FFD859" height="48" title="Pinia 3" />](https://pinia.vuejs.org/)
-[<img src="https://skillicons.dev/icons?i=unocss" height="48" title="UnoCSS" />](https://unocss.dev/)
+[<img src="https://skillicons.dev/icons?i=windicss" height="48" title="UnoCSS" />](https://unocss.dev/)
+[<img src="https://cdn.simpleicons.org/antdesign/0170FE" height="48" title="Ant Design Vue" />](https://antdv.com/)
 
 **部署**
 
@@ -76,7 +78,7 @@ node -v
 corepack enable
 pnpm -v
 
-# 2. 安装依赖并构建前端
+# 2. 安装依赖并构建
 cd D:\Projects\qq-farm-bot-ui
 pnpm install
 pnpm build
@@ -98,7 +100,7 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 corepack enable
 
-# 2. 安装依赖并构建前端
+# 2. 安装依赖并构建
 cd /path/to/qq-farm-bot-ui
 pnpm install
 pnpm build
@@ -138,7 +140,7 @@ docker compose down
 | ---------- | ---------------- |
 | `./data`   | `/app/core/data` |
 
-账号与配置数据保存在 `./data/accounts.json` 和 `./data/store.json`。
+账号与配置数据保存在 `./data/` 下的 SQLite 数据库（`farm.db`）中。
 
 ### 设置管理密码
 
@@ -162,26 +164,41 @@ pnpm install
 pnpm package:release
 ```
 
-产物输出在 `dist/` 目录：
+产物输出在 `apps/core/release/` 目录：
 
-| 平台                | 文件名                    |
-| ------------------- | ------------------------- |
-| Windows x64         | `qq-farm-bot-win-x64.exe` |
-| Linux x64           | `qq-farm-bot-linux-x64`   |
-| macOS Intel         | `qq-farm-bot-macos-x64`   |
-| macOS Apple Silicon | `qq-farm-bot-macos-arm64` |
+| 平台                | 文件名                 |
+| ------------------- | ---------------------- |
+| Windows x64         | `core-win-x64.exe`     |
+| Linux x64           | `core-linux-x64`       |
+| macOS Intel         | `core-macos-x64`       |
+| macOS Apple Silicon | `core-macos-arm64`     |
 
 ### 运行
 
 ```bash
 # Windows：双击 exe 或在终端执行
-.\qq-farm-bot-win-x64.exe
+.\core-win-x64.exe
 
 # Linux / macOS
-chmod +x ./qq-farm-bot-linux-x64 && ./qq-farm-bot-linux-x64
+chmod +x ./core-linux-x64 && ./core-linux-x64
 ```
 
-程序会在可执行文件同级目录自动创建 `data/` 并写入 `store.json`、`accounts.json`。
+程序会在可执行文件同级目录自动创建 `data/` 并写入 SQLite 数据库。
+
+---
+
+## 常用脚本
+
+| 命令              | 说明                         |
+| ----------------- | ---------------------------- |
+| `pnpm build`      | 构建 web + core              |
+| `pnpm dev`        | 同时启动 web 开发服务器与 core |
+| `pnpm dev:core`   | 仅启动 core（含预构建的 web） |
+| `pnpm dev:web`    | 仅启动 web 开发服务器        |
+| `pnpm lint`       | 执行 ESLint 检查             |
+| `pnpm package:win`   | 构建 Windows 二进制       |
+| `pnpm package:linux` | 构建 Linux 二进制         |
+| `pnpm package:mac`   | 构建 macOS 二进制         |
 
 ---
 
@@ -189,6 +206,7 @@ chmod +x ./qq-farm-bot-linux-x64 && ./qq-farm-bot-linux-x64
 
 - 面板首次访问需要登录
 - 默认管理密码：`admin`
+- 使用 JWT 进行身份验证
 - **建议部署后立即修改为强密码**
 
 ---
@@ -197,26 +215,26 @@ chmod +x ./qq-farm-bot-linux-x64 && ./qq-farm-bot-linux-x64
 
 ```
 qq-farm-bot-ui/
-├── core/                  # 后端（Node.js 机器人引擎）
-│   ├── src/
-│   │   ├── config/        # 配置管理
-│   │   ├── controllers/   # HTTP API
-│   │   ├── gameConfig/    # 游戏静态数据
-│   │   ├── models/        # 数据模型与持久化
-│   │   ├── proto/         # Protobuf 协议定义
-│   │   ├── runtime/       # 运行时引擎与 Worker 管理
-│   │   └── services/      # 业务逻辑（农场、好友、任务等）
-│   ├── data/              # 运行时数据（accounts.json、store.json）
-│   └── client.js          # 主进程入口
-├── web/                   # 前端（Vue 3 + Vite）
-│   ├── src/
-│   │   ├── api/           # API 客户端
-│   │   ├── components/    # Vue 组件
-│   │   ├── stores/        # Pinia 状态管理
-│   │   └── views/         # 页面视图
-│   └── dist/              # 构建产物
+├── apps/
+│   ├── core/              # 后端（NestJS + SQLite + 机器人引擎）
+│   │   ├── src/           # NestJS 模块（TypeScript）
+│   │   │   ├── modules/   # API 控制器与服务
+│   │   │   ├── database/  # Drizzle ORM 与 SQLite
+│   │   │   └── common/    # 守卫、拦截器、装饰器
+│   │   ├── legacy/        # 游戏协议与 Worker 运行时（JavaScript）
+│   │   ├── dist/          # 构建产物
+│   │   ├── data/          # 运行时数据（SQLite、logs）
+│   │   └── release/       # pkg 二进制输出
+│   └── web/               # 前端（Vue 3 + Vite + Ant Design Vue）
+│       ├── src/
+│       │   ├── api/       # API 客户端
+│       │   ├── components/# 公共组件
+│       │   ├── stores/    # Pinia 状态管理
+│       │   └── views/     # 页面视图
+│       └── dist/          # 构建产物
 ├── docker-compose.yml
 ├── pnpm-workspace.yaml
+├── turbo.json
 └── package.json
 ```
 

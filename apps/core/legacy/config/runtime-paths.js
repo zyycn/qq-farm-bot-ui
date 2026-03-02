@@ -37,7 +37,7 @@ function getDataFile(filename) {
 }
 
 function getShareFilePath() {
-    return path.join(getAppRootForWritable(), 'share.txt');
+    return path.join(__dirname, '..', 'share.txt');
 }
 
 module.exports = {

@@ -41,7 +41,7 @@ export const useAccountStore = defineStore('account', () => {
   async function fetchAccounts() {
     loading.value = true
     try {
-      // api interceptor adds x-admin-token
+      // api interceptor adds Authorization header
       const res = await accountApi.fetchAccounts()
       if (res && res.accounts) {
         accounts.value = res.accounts
@@ -92,9 +92,7 @@ export const useAccountStore = defineStore('account', () => {
   async function fetchLogs() {
     try {
       const res = await accountApi.fetchAccountLogs(100)
-      if (Array.isArray(res.data)) {
-        logs.value = res.data
-      }
+      logs.value = Array.isArray(res) ? res : []
     }
     catch (e) {
       console.error('获取账号日志失败', e)

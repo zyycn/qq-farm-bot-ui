@@ -18,10 +18,5 @@
   },
   "devDependencies": {
     "turbo": "^2.8.12"
-  },
-  "pnpm": {
-    "overrides": {
-      "@babel/traverse": "7.26.10"
-    }
   }
 }

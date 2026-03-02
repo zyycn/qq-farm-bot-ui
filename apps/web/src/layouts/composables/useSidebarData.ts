@@ -79,11 +79,13 @@ export function useSidebarData() {
     statusStore.disconnectRealtime()
   })
 
-  useIntervalFn(checkConnection, 30000)
   useIntervalFn(() => {
-    refreshStatusFallback()
-    accountStore.fetchAccounts()
-  }, 10000)
+    checkConnection()
+    if (!realtimeConnected.value) {
+      refreshStatusFallback()
+      accountStore.fetchAccounts()
+    }
+  }, 15000)
 
   // Watch account changes
   watch(

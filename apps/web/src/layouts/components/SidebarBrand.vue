@@ -24,7 +24,12 @@ defineProps<{
 
 <style scoped>
 .brand-title {
-  background: linear-gradient(135deg, #15803d 0%, #22c55e 50%, #16a34a 100%);
+  background: linear-gradient(
+    135deg,
+    var(--ant-color-primary-active) 0%,
+    var(--ant-color-primary) 50%,
+    var(--ant-color-primary-active) 100%
+  );
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -39,15 +44,13 @@ defineProps<{
   font-weight: 700;
   letter-spacing: 0.15em;
   border-radius: 4px;
-  background: linear-gradient(135deg, #15803d 0%, #22c55e 50%, #16a34a 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 0 0 1px rgba(34, 197, 94, 0.3);
+  background: var(--ant-green-7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
   color: #fff;
 }
 
 .brand-sparkle {
-  color: #4ade80;
+  color: var(--ant-color-primary);
   animation: sparkle-pulse 2.4s ease-in-out infinite;
 }
 

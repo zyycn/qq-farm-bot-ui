@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useIntervalFn } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
+import { useAccountRefresh } from '@/composables/useAccountRefresh'
+import { useFriendLandsWithCountdown } from '@/composables/useFriendLandsWithCountdown'
 import { useAccountStore, useFriendStore, useStatusStore } from '@/stores'
 import FriendRow from './components/FriendRow.vue'
 import FriendToolbar from './components/FriendToolbar.vue'
@@ -79,18 +81,9 @@ async function loadFriends() {
   }
 }
 
-useIntervalFn(() => {
-  for (const gid in friendLands.value) {
-    if (friendLands.value[gid]) {
-      friendLands.value[gid] = friendLands.value[gid].map((l: any) =>
-        l.matureInSec > 0 ? { ...l, matureInSec: l.matureInSec - 1 } : l,
-      )
-    }
-  }
-}, 1000)
+const friendLandsWithCountdown = useFriendLandsWithCountdown(friendLands)
 
-onMounted(() => loadFriends())
-watch(currentAccountId, () => {
+useAccountRefresh(() => {
   expandedFriends.value.clear()
   loadFriends()
 })
@@ -186,7 +179,7 @@ function handleAvatarError(key: string) {
             :friend="friend"
             :expanded="expandedFriends.has(friend.gid)"
             :blacklisted="blacklist.includes(Number(friend.gid))"
-            :lands="friendLands[friend.gid] || []"
+            :lands="friendLandsWithCountdown[friend.gid] || []"
             :lands-loading="!!friendLandsLoading[friend.gid]"
             :avatar-error-keys="avatarErrorKeys"
             @toggle="toggleFriend(friend.gid)"

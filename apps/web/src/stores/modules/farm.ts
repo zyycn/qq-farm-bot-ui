@@ -28,7 +28,11 @@ export const useFarmStore = defineStore('farm', () => {
     try {
       const res = await farmApi.fetchLands()
       if (res) {
-        lands.value = res.lands || []
+        const nowSec = Math.floor(Date.now() / 1000)
+        lands.value = (res.lands || []).map((l: any) => ({
+          ...l,
+          matureAt: nowSec + (l.matureInSec ?? 0),
+        }))
         summary.value = res.summary || {}
       }
     }

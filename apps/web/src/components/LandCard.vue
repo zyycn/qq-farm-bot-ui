@@ -74,7 +74,7 @@ function getLandTypeName(level: number) {
         loading="lazy"
         referrerpolicy="no-referrer"
       >
-      <div v-else class="i-carbon-sprout text-xl a-color-text-quat" />
+      <div v-else class="i-twemoji-seedling text-xl a-color-text-quat" />
     </div>
 
     <div class="w-full truncate px-1 text-center text-sm font-bold" :title="land.plantName">

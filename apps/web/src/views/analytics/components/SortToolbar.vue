@@ -33,7 +33,7 @@ const searchQuery = defineModel<string>('searchQuery', { required: true })
     </div>
 
     <div class="flex items-center gap-3">
-      <a-input v-model:value="searchQuery" placeholder="搜索作物..." allow-clear class="!w-48">
+      <a-input v-model:value="searchQuery" placeholder="搜索作物..." allow-clear class="w-35 md:w-48">
         <template #prefix>
           <div class="i-twemoji-magnifying-glass-tilted-left text-sm" />
         </template>

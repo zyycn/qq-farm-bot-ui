@@ -148,7 +148,7 @@ function handleToggleBlacklist(e: Event) {
       </div>
 
       <div class="transition-transform a-color-text-tertiary" :class="expanded ? 'rotate-90' : ''">
-        <div class="i-carbon-chevron-right" />
+        <div class="i-twemoji-right-arrow" />
       </div>
     </div>
 

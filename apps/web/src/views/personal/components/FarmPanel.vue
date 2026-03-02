@@ -64,16 +64,29 @@ function handleOperate(opType: string) {
             @click="handleOperate(op.type)"
           >
             <template #icon>
-              <div class="" :class="op.icon" />
+              <div :class="op.icon" />
             </template>
             <span class="hidden xl:inline">{{ op.label }}</span>
           </a-button>
         </a-tooltip>
       </div>
     </div>
-    <div class="min-h-0 flex-1 overflow-y-auto p-3">
-      <a-empty v-if="!connected" description="账号未连接" class="pt-12" />
-      <a-empty v-else-if="!lands || lands.length === 0" description="暂无土地数据" class="pt-12" />
+    <div class="min-h-0 flex flex-1 flex-col overflow-y-auto p-3">
+      <div
+        v-if="!connected || !lands || lands.length === 0"
+        class="min-h-0 flex flex-1 items-center justify-center"
+      >
+        <a-empty
+          v-if="!connected"
+          description="账号未连接"
+          :image-style="{ height: '32px' }"
+        />
+        <a-empty
+          v-else
+          description="暂无土地数据"
+          :image-style="{ height: '32px' }"
+        />
+      </div>
       <div v-else class="grid grid-cols-3 gap-2.5 lg:grid-cols-4 xl:grid-cols-5">
         <LandCard v-for="land in lands" :key="land.id" :land="land" />
       </div>

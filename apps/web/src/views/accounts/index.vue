@@ -80,7 +80,7 @@ function getDisplayName(acc: any) {
 </script>
 
 <template>
-  <div class="h-full flex flex-col gap-3">
+  <div class="flex flex-col gap-3">
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2 font-bold a-color-text">

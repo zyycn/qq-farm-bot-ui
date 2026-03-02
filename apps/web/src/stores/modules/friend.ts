@@ -97,7 +97,12 @@ export const useFriendStore = defineStore('friend', () => {
     friendLandsLoading.value[friendId] = true
     try {
       const res = await friendApi.fetchFriendLands(friendId)
-      const lands = res?.lands || []
+      const rawLands = res?.lands || []
+      const nowSec = Math.floor(Date.now() / 1000)
+      const lands = rawLands.map((l: any) => ({
+        ...l,
+        matureAt: nowSec + (l.matureInSec ?? 0),
+      }))
       const summary = res?.summary ?? null
       friendLands.value[friendId] = lands
       syncFriendPlantSummary(friendId, lands, summary)

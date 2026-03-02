@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
+import { useAccountRefresh } from '@/composables/useAccountRefresh'
 import { useAccountStore, useFarmStore, useSettingStore } from '@/stores'
 import AccountInfoCard from './components/AccountInfoCard.vue'
 import OfflineReminderCard from './components/OfflineReminderCard.vue'
@@ -111,13 +112,7 @@ async function loadData() {
   }
 }
 
-onMounted(() => {
-  loadData()
-})
-
-watch(currentAccountId, () => {
-  loadData()
-})
+useAccountRefresh(loadData)
 
 async function saveAccountSettings() {
   if (!currentAccountId.value)

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useIntervalFn } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
+import { useAccountRefresh } from '@/composables/useAccountRefresh'
+import { useLandsWithCountdown } from '@/composables/useLandsWithCountdown'
 import { useAccountStore, useBagStore, useFarmStore, useStatusStore } from '@/stores'
 import BagPanel from './components/BagPanel.vue'
 import DailyGiftPanel from './components/DailyGiftPanel.vue'
@@ -55,44 +57,30 @@ function handleOperate(opType: string) {
 }
 
 async function refresh() {
-  if (!currentAccountId.value)
-    return
-  let acc = currentAccount.value
-  if (!acc) {
+  if (!accountStore.accounts.length)
     await accountStore.fetchAccounts()
-    acc = currentAccount.value
-  }
-  if (!acc)
+
+  const firstAcc = accountStore.accounts[0]
+  if (!currentAccountId.value && firstAcc)
+    accountStore.selectAccount(String(firstAcc.id))
+
+  const acc = currentAccount.value
+  if (!acc || !currentAccountId.value)
     return
+
   if (!realtimeConnected.value)
     await statusStore.fetchStatus(currentAccountId.value)
-  if (acc.running && connected.value) {
-    farmStore.fetchLands(currentAccountId.value)
-    bagStore.fetchBag(currentAccountId.value)
-    statusStore.fetchDailyGifts(currentAccountId.value)
-  }
+
+  farmStore.fetchLands(currentAccountId.value)
+  bagStore.fetchBag(currentAccountId.value)
+  statusStore.fetchDailyGifts(currentAccountId.value)
 }
 
-watch(currentAccountId, refresh)
+useAccountRefresh(refresh)
 
-const { pause: pauseCountdown, resume: resumeCountdown } = useIntervalFn(() => {
-  if (lands.value) {
-    lands.value = lands.value.map((l: any) => (l.matureInSec > 0 ? { ...l, matureInSec: l.matureInSec - 1 } : l))
-  }
-}, 1000)
+const landsWithCountdown = useLandsWithCountdown(lands)
 
-const { pause: pauseRefresh, resume: resumeRefresh } = useIntervalFn(refresh, 60000)
-
-onMounted(() => {
-  refresh()
-  resumeCountdown()
-  resumeRefresh()
-})
-
-onUnmounted(() => {
-  pauseCountdown()
-  pauseRefresh()
-})
+useIntervalFn(refresh, 60000)
 </script>
 
 <template>
@@ -106,7 +94,7 @@ onUnmounted(() => {
 
     <div class="flex flex-col gap-3 md:flex-1 md:flex-row md:overflow-hidden">
       <FarmPanel
-        :lands="lands || []"
+        :lands="landsWithCountdown || []"
         :summary="summary"
         :connected="!!connected"
         :operating="operating"

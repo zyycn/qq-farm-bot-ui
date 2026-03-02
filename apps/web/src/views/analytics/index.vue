@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useResizeObserver } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { analyticsApi } from '@/api'
+import { useAccountRefresh } from '@/composables/useAccountRefresh'
 import { useAccountStore } from '@/stores'
 import CropTable from './components/CropTable.vue'
 import SortToolbar from './components/SortToolbar.vue'
@@ -76,13 +77,8 @@ async function loadAnalytics() {
   }
 }
 
-onMounted(() => {
-  loadAnalytics()
-})
-
-watch([currentAccountId, sortKey], () => {
-  loadAnalytics()
-})
+useAccountRefresh(loadAnalytics)
+watch(sortKey, loadAnalytics)
 </script>
 
 <template>

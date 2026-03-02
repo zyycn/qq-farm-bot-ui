@@ -16,9 +16,9 @@ function handleToggle() {
 
 <template>
   <a-button
-    class="relative flex items-center justify-center overflow-hidden"
     title="切换主题"
     color="primary"
+    class="px-1.8"
     variant="filled"
     @click="handleToggle"
   >

@@ -25,6 +25,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  font-family: 'DM Sans', sans-serif;
 }
 
 /* NProgress */
@@ -37,4 +38,18 @@ body {
   box-shadow:
     0 0 10px var(--ant-color-primary, #22c55e),
     0 0 5px var(--ant-color-primary, #22c55e) !important;
+}
+
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition:
+    background-color 0.3s ease,
+    background 0.3s ease,
+    color 0.2s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    fill 0.3s ease,
+    opacity 0.3s ease !important;
 }

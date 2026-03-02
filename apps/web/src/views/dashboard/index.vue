@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { useIntervalFn } from '@vueuse/core'
+import { useIntervalFn, watchThrottled } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { useAccountRefresh } from '@/composables/useAccountRefresh'
 import { useAccountStore, useBagStore, useStatusStore } from '@/stores'
 import AccountExpCard from './components/AccountExpCard.vue'
 import AssetsCard from './components/AssetsCard.vue'
@@ -189,25 +190,18 @@ function onLogFilterChange() {
   refresh(true)
 }
 
-watch(currentAccountId, () => {
-  refresh()
-})
+useAccountRefresh(refresh)
 
-watch(
-  () => status.value?.connection?.connected,
-  (connected) => {
+watchThrottled(
+  () => ({
+    connected: status.value?.connection?.connected,
+    ops: status.value?.operations,
+  }),
+  ({ connected }) => {
     if (connected)
       refreshBag(true)
   },
-)
-
-watch(
-  () => JSON.stringify(status.value?.operations || {}),
-  (next, prev) => {
-    if (!realtimeConnected.value || next === prev)
-      return
-    refreshBag()
-  },
+  { throttle: 3000, deep: true },
 )
 
 watch(hasActiveLogFilter, (enabled) => {
@@ -217,7 +211,6 @@ watch(hasActiveLogFilter, (enabled) => {
 
 onMounted(() => {
   statusStore.setRealtimeLogsEnabled(!hasActiveLogFilter.value)
-  refresh()
 })
 
 useIntervalFn(refresh, 10000)

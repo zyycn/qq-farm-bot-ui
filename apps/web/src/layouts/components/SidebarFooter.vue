@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
-import ThemeToggle from './ThemeToggle.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 
 defineProps<{
   collapsed?: boolean

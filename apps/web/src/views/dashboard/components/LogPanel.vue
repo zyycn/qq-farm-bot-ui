@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SelectValue } from 'antdv-next'
 import { SearchOutlined } from '@antdv-next/icons'
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { EVENTS, LOG_LEVELS, MODULES } from '../constants'
@@ -18,16 +19,16 @@ function updateFilterField(key: keyof typeof props.filter, value: string) {
   emit('filterChange')
 }
 
-function onModuleChange(v: string) {
-  updateFilterField('module', v)
+function onModuleChange(v: SelectValue) {
+  updateFilterField('module', String(v ?? ''))
 }
 
-function onEventChange(v: string) {
-  updateFilterField('event', v)
+function onEventChange(v: SelectValue) {
+  updateFilterField('event', String(v ?? ''))
 }
 
-function onIsWarnChange(v: string) {
-  updateFilterField('isWarn', v)
+function onIsWarnChange(v: SelectValue) {
+  updateFilterField('isWarn', String(v ?? ''))
 }
 
 function updateKeyword(value: string) {
@@ -99,38 +100,37 @@ onMounted(() => {
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <a-select
-          :model-value="filter.module"
+          :value="filter.module"
           :options="MODULES"
           placeholder="模块"
           size="small"
           class="w-28"
-          @update:model-value="onModuleChange"
+          @update:value="onModuleChange"
         />
         <a-select
-          :model-value="filter.event"
+          :value="filter.event"
           :options="EVENTS"
           placeholder="事件"
           size="small"
           class="w-28"
-          @update:model-value="onEventChange"
+          @update:value="onEventChange"
         />
         <a-select
-          :model-value="filter.isWarn"
+          :value="filter.isWarn"
           :options="LOG_LEVELS"
           placeholder="级别"
           size="small"
           class="w-28"
-          @update:model-value="onIsWarnChange"
+          @update:value="onIsWarnChange"
         />
         <a-input
-          :model-value="filter.keyword"
+          :value="filter.keyword"
           placeholder="搜索..."
           allow-clear
           size="small"
           class="w-28"
-          @update:model-value="updateKeyword"
+          @update:value="updateKeyword"
           @press-enter="triggerFilterChange"
-          @change="triggerFilterChange"
         />
         <a-button type="primary" size="small" @click="triggerFilterChange">
           <template #icon>

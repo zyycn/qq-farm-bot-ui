@@ -1,5 +1,8 @@
 import { presetAntd } from '@antdv-next/unocss'
-import { defineConfig, presetAttributify, presetIcons, presetUno, presetWebFonts } from 'unocss'
+import presetWebFonts from '@unocss/preset-web-fonts'
+import { createLocalFontProcessor } from '@unocss/preset-web-fonts/local'
+import axios from 'axios'
+import { defineConfig, presetIcons, presetWind3 } from 'unocss'
 
 export default defineConfig({
   content: {
@@ -20,8 +23,11 @@ export default defineConfig({
     },
   },
   presets: [
-    presetUno(),
-    presetAttributify(),
+    presetWind3(),
+    presetAntd({
+      prefix: 'a',
+      antPrefix: 'ant',
+    }),
     presetIcons({
       scale: 1.2,
       warn: true,
@@ -32,10 +38,11 @@ export default defineConfig({
         serif: 'DM Serif Display',
         mono: 'DM Mono',
       },
-    }),
-    presetAntd({
-      prefix: 'a',
-      antPrefix: 'ant',
+      processors: createLocalFontProcessor({
+        cacheDir: 'node_modules/.cache/unocss/fonts',
+        fontAssetsDir: 'public/assets/fonts',
+        fontServeBaseUrl: '/assets/fonts',
+      }),
     }),
   ],
 })

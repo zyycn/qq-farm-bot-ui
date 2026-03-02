@@ -20,8 +20,8 @@ function onImageError(id: string | number) {
     :classes="{ body: '!p-3 !h-full !flex !flex-col !overflow-hidden' }"
   >
     <div class="mb-2 flex items-center justify-between">
-      <div class="flex items-center gap-2 text-base font-bold a-color-text">
-        <div class="i-twemoji-backpack text-base" />
+      <div class="flex items-center gap-2 font-bold a-color-text">
+        <div class="i-twemoji-backpack" />
         背包
       </div>
       <span v-if="items.length" class="text-sm a-color-text-tertiary">{{ items.length }} 种</span>
@@ -34,19 +34,15 @@ function onImageError(id: string | number) {
           :key="item.id"
           class="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 a-bg-fill-tertiary"
         >
-          <div
-            class="h-8 w-8 flex shrink-0 items-center justify-center overflow-hidden rounded-lg a-bg-container"
-          >
+          <div class="h-8 w-8 flex shrink-0 items-center justify-center overflow-hidden rounded-lg a-bg-container">
             <img
               v-if="item.image && !imageErrors[item.id]"
               :src="item.image"
               class="h-6 w-6 object-contain"
               loading="lazy"
               @error="onImageError(item.id)"
-            >
-            <span v-else class="text-sm font-bold a-color-text-tertiary">{{
-              (item.name || '物').slice(0, 1)
-            }}</span>
+            />
+            <span v-else class="text-sm font-bold a-color-text-tertiary">{{ (item.name || '物').slice(0, 1) }}</span>
           </div>
           <div class="min-w-0 flex-1">
             <div class="truncate text-sm font-medium leading-tight a-color-text">

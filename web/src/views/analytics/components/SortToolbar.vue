@@ -26,7 +26,7 @@ const searchQuery = defineModel<string>('searchQuery', { required: true })
           "
           @click="sortKey = opt.value"
         >
-          <div class="text-base" :class="SORT_ICONS[opt.value]" />
+          <div class="" :class="SORT_ICONS[opt.value]" />
           <span class="hidden sm:inline">{{ opt.label }}</span>
         </a-button>
       </div>

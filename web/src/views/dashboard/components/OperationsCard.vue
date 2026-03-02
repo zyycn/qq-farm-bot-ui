@@ -15,8 +15,12 @@ function getOpIcon(key: string | number): string {
 </script>
 
 <template>
-  <a-card variant="borderless" class="min-h-0 flex-1" :classes="{ body: '!p-4 !h-full !flex !flex-col !overflow-hidden' }">
-    <div class="mb-3 flex items-center gap-2 text-base font-medium a-color-text">
+  <a-card
+    variant="borderless"
+    class="min-h-0 flex-1"
+    :classes="{ body: '!p-4 !h-full !flex !flex-col !overflow-hidden' }"
+  >
+    <div class="mb-3 flex items-center gap-2 font-medium a-color-text">
       <div class="i-twemoji-bar-chart text-lg" />
       今日统计
     </div>
@@ -27,10 +31,10 @@ function getOpIcon(key: string | number): string {
         class="flex items-center justify-between rounded-lg px-2.5 py-2 a-bg-fill-tertiary"
       >
         <div class="flex items-center gap-1.5">
-          <div class="text-base" :class="getOpIcon(key)" />
+          <div class="" :class="getOpIcon(key)" />
           <span class="text-sm a-color-text-secondary">{{ getOpName(key) }}</span>
         </div>
-        <span class="text-base font-bold a-color-text">{{ val }}</span>
+        <span class="font-bold a-color-text">{{ val }}</span>
       </div>
     </div>
   </a-card>

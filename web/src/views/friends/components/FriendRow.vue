@@ -22,12 +22,12 @@ const emit = defineEmits<{
 
 function getFriendStatusTags(friend: any) {
   const p = friend.plant || {}
-  const tags: { label: string, icon: string, class: string }[] = []
+  const tags: { label: string; icon: string; class: string }[] = []
   if (p.stealNum) {
     tags.push({
       label: `可偷 ${p.stealNum}`,
       icon: 'i-twemoji-pinching-hand',
-      class: 'a-bg-fill-tertiary a-color-text-secondary',
+      class: 'a-bg-fill-tertiary a-color-text-secondary'
     })
   }
   if (p.dryNum) {
@@ -44,11 +44,9 @@ function getFriendStatusTags(friend: any) {
 
 function getFriendAvatar(friend: any) {
   const direct = String(friend?.avatarUrl || friend?.avatar_url || '').trim()
-  if (direct)
-    return direct
+  if (direct) return direct
   const uin = String(friend?.uin || '').trim()
-  if (uin)
-    return `https://q1.qlogo.cn/g?b=qq&nk=${uin}&s=100`
+  if (uin) return `https://q1.qlogo.cn/g?b=qq&nk=${uin}&s=100`
   return ''
 }
 
@@ -58,8 +56,7 @@ function getFriendAvatarKey(friend: any) {
 
 const canShowAvatar = computed(() => {
   const key = getFriendAvatarKey(props.friend)
-  if (!key)
-    return false
+  if (!key) return false
   return !!getFriendAvatar(props.friend) && !props.avatarErrorKeys.has(key)
 })
 
@@ -83,10 +80,7 @@ function handleToggleBlacklist(e: Event) {
 </script>
 
 <template>
-  <div
-    class="transition-colors"
-    :class="blacklisted ? 'opacity-50' : 'opacity-100'"
-  >
+  <div class="transition-colors" :class="blacklisted ? 'opacity-50' : 'opacity-100'">
     <!-- Friend Row -->
     <div
       class="flex cursor-pointer items-center gap-3 px-4 py-3 transition-colors"
@@ -104,10 +98,8 @@ function handleToggleBlacklist(e: Event) {
 
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2">
-          <span class="truncate text-base font-semibold a-color-text">{{ friend.name }}</span>
-          <a-tag v-if="blacklisted" size="small" color="default">
-            屏蔽
-          </a-tag>
+          <span class="truncate font-semibold a-color-text">{{ friend.name }}</span>
+          <a-tag v-if="blacklisted" size="small" color="default"> 屏蔽 </a-tag>
         </div>
         <div class="mt-0.5 flex flex-wrap items-center gap-1.5">
           <template v-if="getFriendStatusTags(friend).length">
@@ -129,7 +121,7 @@ function handleToggleBlacklist(e: Event) {
       <div class="hidden items-center gap-1 sm:flex">
         <a-tooltip v-for="op in OP_BUTTONS" :key="op.type" :title="op.label" placement="top">
           <a-button
-            class="flex items-center justify-center border rounded-lg border-solid p-1.5 text-base transition-all a-bg-container a-border-border active:scale-95 hover:shadow-sm"
+            class="flex items-center justify-center border rounded-lg border-solid p-1.5 transition-all a-bg-container a-border-border active:scale-95 hover:shadow-sm"
             @click="handleOperate(op.type, $event)"
           >
             <div :class="op.icon" />
@@ -137,7 +129,7 @@ function handleToggleBlacklist(e: Event) {
         </a-tooltip>
         <a-tooltip :title="blacklisted ? '移出黑名单' : '加入黑名单'" placement="top">
           <a-button
-            class="ml-1 flex items-center justify-center rounded-lg p-1.5 text-base transition-all active:scale-95"
+            class="ml-1 flex items-center justify-center rounded-lg p-1.5 transition-all active:scale-95"
             :class="
               blacklisted
                 ? 'border border-solid a-border-success a-bg-primary-bg'
@@ -150,11 +142,8 @@ function handleToggleBlacklist(e: Event) {
         </a-tooltip>
       </div>
 
-      <div
-        class="transition-transform a-color-text-tertiary"
-        :class="expanded ? 'rotate-90' : ''"
-      >
-        <div class="i-carbon-chevron-right text-base" />
+      <div class="transition-transform a-color-text-tertiary" :class="expanded ? 'rotate-90' : ''">
+        <div class="i-carbon-chevron-right" />
       </div>
     </div>
 
@@ -169,7 +158,7 @@ function handleToggleBlacklist(e: Event) {
         class="flex items-center gap-1 border rounded-lg border-solid px-2 py-1 text-sm transition-all a-bg-container a-border-border active:scale-95"
         @click="handleOperate(op.type, $event)"
       >
-        <div class="text-base" :class="op.icon" />
+        <div class="" :class="op.icon" />
         {{ op.label }}
       </a-button>
       <a-button
@@ -181,16 +170,12 @@ function handleToggleBlacklist(e: Event) {
         "
         @click="handleToggleBlacklist($event)"
       >
-        <div class="text-base" :class="blacklisted ? 'i-twemoji-check-mark-button' : 'i-twemoji-prohibited'" />
+        <div class="" :class="blacklisted ? 'i-twemoji-check-mark-button' : 'i-twemoji-prohibited'" />
         {{ blacklisted ? '取消屏蔽' : '屏蔽' }}
       </a-button>
     </div>
 
     <!-- Expanded Lands -->
-    <FriendLands
-      v-if="expanded"
-      :lands="lands"
-      :loading="landsLoading"
-    />
+    <FriendLands v-if="expanded" :lands="lands" :loading="landsLoading" />
   </div>
 </template>

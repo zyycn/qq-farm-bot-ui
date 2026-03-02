@@ -1,17 +1,14 @@
 <script setup lang="ts">
 defineProps<{
-  growth: { doneToday?: boolean, completedCount?: number, totalCount?: number, tasks?: any[] } | null
+  growth: { doneToday?: boolean; completedCount?: number; totalCount?: number; tasks?: any[] } | null
 }>()
 
 function formatTaskProgress(task: any) {
-  if (!task)
-    return '未开始'
+  if (!task) return '未开始'
   const current = Number(task.progress ?? task.current) || 0
   const target = Number(task.totalProgress ?? task.target) || 0
-  if (!current && !target)
-    return '未开始'
-  if (target && current >= target)
-    return '已完成'
+  if (!current && !target) return '未开始'
+  if (target && current >= target) return '已完成'
   return `${current}/${target}`
 }
 </script>
@@ -19,8 +16,8 @@ function formatTaskProgress(task: any) {
 <template>
   <a-card variant="borderless" size="small" :classes="{ body: '!p-3' }">
     <div class="mb-2 flex items-center justify-between">
-      <div class="flex items-center gap-2 text-base font-bold a-color-text">
-        <div class="i-twemoji-check-mark-button text-base" />
+      <div class="flex items-center gap-2 font-bold a-color-text">
+        <div class="i-twemoji-check-mark-button" />
         成长任务
       </div>
       <a-tag v-if="growth" :color="growth.doneToday ? 'green' : 'blue'" size="small">
@@ -35,11 +32,7 @@ function formatTaskProgress(task: any) {
         class="flex items-center justify-between rounded-lg px-2.5 py-1.5 a-bg-fill-tertiary"
       >
         <span class="truncate text-sm a-color-text-secondary">{{ task.desc || task.name }}</span>
-        <a-tag
-          :color="formatTaskProgress(task) === '已完成' ? 'green' : 'default'"
-          size="small"
-          class="shrink-0 !ml-2"
-        >
+        <a-tag :color="formatTaskProgress(task) === '已完成' ? 'green' : 'default'" size="small" class="shrink-0 !ml-2">
           {{ formatTaskProgress(task) }}
         </a-tag>
       </div>

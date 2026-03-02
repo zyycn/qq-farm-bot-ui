@@ -59,6 +59,12 @@ importers:
       '@antdv-next/icons':
         specifier: ^1.0.2
         version: 1.0.2(vue@3.5.28(typescript@5.9.3))
+      '@iconify-json/carbon':
+        specifier: ^1.2.18
+        version: 1.2.18
+      '@iconify-json/icon-park-solid':
+        specifier: ^1.2.4
+        version: 1.2.4
       '@iconify-json/twemoji':
         specifier: ^1.2.5
         version: 1.2.5
@@ -93,18 +99,6 @@ importers:
       '@antfu/eslint-config':
         specifier: ^7.4.3
         version: 7.4.3(@unocss/eslint-plugin@66.5.12(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3))(@vue/compiler-sfc@3.5.28)(eslint-plugin-format@1.4.0(eslint@9.39.3(jiti@2.6.1)))(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
-      '@iconify-json/carbon':
-        specifier: ^1.2.18
-        version: 1.2.18
-      '@iconify-json/fa-solid':
-        specifier: ^1.2.2
-        version: 1.2.2
-      '@iconify-json/icon-park-solid':
-        specifier: ^1.2.4
-        version: 1.2.4
-      '@iconify-json/svg-spinners':
-        specifier: ^1.2.4
-        version: 1.2.4
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.13
@@ -114,9 +108,9 @@ importers:
       '@unocss/eslint-plugin':
         specifier: ^66.5.12
         version: 66.5.12(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
-      '@unocss/reset':
-        specifier: ^66.5.12
-        version: 66.5.12
+      '@unocss/preset-web-fonts':
+        specifier: ^66.6.2
+        version: 66.6.2
       '@vitejs/plugin-vue':
         specifier: ^6.0.2
         version: 6.0.4(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(sass@1.97.3)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3))
@@ -588,14 +582,8 @@ packages:
   '@iconify-json/carbon@1.2.18':
     resolution: {integrity: sha512-Grb13E6r/RqTEV4Sqd/BQR2FUt57U2WLuticJ5H8JbTdHLop1LmdePu3EJJA3Xi8DcWRbD6OnC133hKfOwlgtg==}
 
-  '@iconify-json/fa-solid@1.2.2':
-    resolution: {integrity: sha512-V8TDk62dGswAwbWwoSTnaoiTVEfQyjLCq4/TPmI29evFb9GwPyU0OGX4+BdQMGsDDzk8ByR81RjR618FtELSaw==}
-
   '@iconify-json/icon-park-solid@1.2.4':
     resolution: {integrity: sha512-030MChSP6lCY7N+U5J5R7YguHTGcm7qQEI/ivBjk77El/i8yJatoj568cwwXGM8c6HEU/kIxEE4m3O/6w0WBGg==}
-
-  '@iconify-json/svg-spinners@1.2.4':
-    resolution: {integrity: sha512-ayn0pogFPwJA1WFZpDnoq9/hjDxN+keeCMyThaX4d3gSJ3y0mdKUxIA/b1YXWGtY9wVtZmxwcvOIeEieG4+JNg==}
 
   '@iconify-json/twemoji@1.2.5':
     resolution: {integrity: sha512-uKpuIEV0v6K5BW3Mjdyl+XKFVAbbcPxAgifKvEMtZoUZB5+YiY5zaMm2uNNCxyXzAWU9yNLlj41WU6/mvgALsw==}
@@ -1045,6 +1033,9 @@ packages:
   '@unocss/core@66.6.0':
     resolution: {integrity: sha512-Sxm7HmhsPIIzxbPnWembPyobuCeA5j9KxL+jIOW2c+kZiTFjHeju7vuVWX9jmAMMC+UyDuuCQ4yE+kBo3Y7SWQ==}
 
+  '@unocss/core@66.6.2':
+    resolution: {integrity: sha512-IOvN1BLRP0VTjjS5afSxmXhvKRDko2Shisp8spU+A9qiH1tXEFP3phyVevm/SuGwBHO1lC+SJ451/4oFkCAwJA==}
+
   '@unocss/eslint-plugin@66.5.12':
     resolution: {integrity: sha512-dTJIiAetwq4YcxJo7O1L2DuBclrO6LcqnyGwcAregPFQ/EDUUhIIRtbQeHPIUKhiEpjURSSIXYJ6pkaR5XTm7A==}
     engines: {node: '>=14'}
@@ -1085,6 +1076,9 @@ packages:
 
   '@unocss/preset-web-fonts@66.5.12':
     resolution: {integrity: sha512-NSUf+H5X0jZ1PLWW6D5ldBERERpbH8VvkpJJhxNTCS54Lj5vJiZ1S06UYxBB57vuUOaHpQOGTbKUSc204LCqdw==}
+
+  '@unocss/preset-web-fonts@66.6.2':
+    resolution: {integrity: sha512-0ckqiE8HkhETeghhxCXVGf96sNPhgBsB5q32iAuMM0HFR4x+ANiLqyfKrm/iqxKUw6rVO4+ItTV0RUWKcZvkXg==}
 
   '@unocss/preset-wind3@66.5.12':
     resolution: {integrity: sha512-SUzX12aQcM1ikzfv4rqwd/xuXtK5GKvhV0/JjvtG/kDTMGaKv161F2ytduj+2pBHtpJO5fUmreCD5ycTUIkxhQ==}
@@ -4201,15 +4195,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/fa-solid@1.2.2':
-    dependencies:
-      '@iconify/types': 2.0.0
-
   '@iconify-json/icon-park-solid@1.2.4':
-    dependencies:
-      '@iconify/types': 2.0.0
-
-  '@iconify-json/svg-spinners@1.2.4':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -4608,6 +4594,8 @@ snapshots:
 
   '@unocss/core@66.6.0': {}
 
+  '@unocss/core@66.6.2': {}
+
   '@unocss/eslint-plugin@66.5.12(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/utils': 8.56.0(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
@@ -4690,6 +4678,11 @@ snapshots:
   '@unocss/preset-web-fonts@66.5.12':
     dependencies:
       '@unocss/core': 66.5.12
+      ofetch: 1.5.1
+
+  '@unocss/preset-web-fonts@66.6.2':
+    dependencies:
+      '@unocss/core': 66.6.2
       ofetch: 1.5.1
 
   '@unocss/preset-wind3@66.5.12':

@@ -16,13 +16,12 @@ const pageSize = ref(50)
 
 const filteredList = computed(() => {
   const q = props.searchQuery.trim().toLowerCase()
-  if (!q)
-    return props.list
+  if (!q) return props.list
   return props.list.filter(
     item =>
-      (item.name || '').toLowerCase().includes(q)
-      || String(item.seedId || '').includes(q)
-      || String(item.level || '').includes(q),
+      (item.name || '').toLowerCase().includes(q) ||
+      String(item.seedId || '').includes(q) ||
+      String(item.level || '').includes(q)
   )
 })
 
@@ -31,22 +30,22 @@ const pagedList = computed(() => {
   return filteredList.value.slice(start, start + pageSize.value)
 })
 
-watch(() => [props.searchQuery], () => {
-  currentPage.value = 1
-})
+watch(
+  () => [props.searchQuery],
+  () => {
+    currentPage.value = 1
+  }
+)
 
 function formatLv(level: any) {
-  if (level === null || level === undefined || level === '' || Number(level) < 0)
-    return '未知'
+  if (level === null || level === undefined || level === '' || Number(level) < 0) return '未知'
   return String(level)
 }
 
 function formatGrowTime(seconds: any) {
   const s = Number(seconds)
-  if (!Number.isFinite(s) || s <= 0)
-    return '0秒'
-  if (s < 60)
-    return `${s}秒`
+  if (!Number.isFinite(s) || s <= 0) return '0秒'
+  if (s < 60) return `${s}秒`
   if (s < 3600) {
     const mins = Math.floor(s / 60)
     const secs = s % 60
@@ -81,11 +80,11 @@ function getHighlightColor(key: string): string {
               :class="[
                 (currentPage - 1) * pageSize + index === 0 ? 'i-twemoji-1st-place-medal' : '',
                 (currentPage - 1) * pageSize + index === 1 ? 'i-twemoji-2nd-place-medal' : '',
-                (currentPage - 1) * pageSize + index === 2 ? 'i-twemoji-3rd-place-medal' : '',
+                (currentPage - 1) * pageSize + index === 2 ? 'i-twemoji-3rd-place-medal' : ''
               ]"
             />
           </div>
-          <span v-else class="text-base a-color-text-tertiary">{{ (currentPage - 1) * pageSize + index + 1 }}</span>
+          <span v-else class="a-color-text-tertiary">{{ (currentPage - 1) * pageSize + index + 1 }}</span>
         </template>
 
         <template v-else-if="column.key === 'name'">
@@ -99,15 +98,17 @@ function getHighlightColor(key: string): string {
                 class="h-7 w-7 object-contain"
                 loading="lazy"
                 @error="imageErrors[record.seedId] = true"
-              >
+              />
               <div v-else class="i-twemoji-seedling text-lg" />
             </div>
             <div class="min-w-0 flex flex-col gap-1.5">
-              <div class="text-base font-semibold a-color-text">
+              <div class="font-semibold a-color-text">
                 {{ record.name }}
               </div>
               <div class="flex items-center gap-1.5">
-                <span class="rounded px-1.5 py-px text-xs font-medium a-color-primary-text a-bg-primary-bg">Lv{{ formatLv(record.level) }}</span>
+                <span class="rounded px-1.5 py-px text-xs font-medium a-color-primary-text a-bg-primary-bg"
+                  >Lv{{ formatLv(record.level) }}</span
+                >
                 <span class="text-xs a-color-text-tertiary">{{ record.seasons }}季</span>
               </div>
             </div>
@@ -115,44 +116,48 @@ function getHighlightColor(key: string): string {
         </template>
 
         <template v-else-if="column.key === 'growTime'">
-          <span class="text-base a-color-text">{{ formatGrowTime(record.growTime) }}</span>
+          <span class="a-color-text">{{ formatGrowTime(record.growTime) }}</span>
         </template>
 
         <template v-else-if="column.key === 'expPerHour'">
           <span
-            class="text-base font-bold"
+            class="font-bold"
             :style="{ color: sortKey === 'exp' ? getHighlightColor('exp') : 'var(--ant-color-text)' }"
-          >{{ record.expPerHour }}</span>
+            >{{ record.expPerHour }}</span
+          >
         </template>
 
         <template v-else-if="column.key === 'normalFertilizerExpPerHour'">
           <span
-            class="text-base font-bold"
+            class="font-bold"
             :style="{ color: sortKey === 'fert' ? getHighlightColor('fert') : 'var(--ant-color-text)' }"
-          >{{ record.normalFertilizerExpPerHour ?? '-' }}</span>
+            >{{ record.normalFertilizerExpPerHour ?? '-' }}</span
+          >
         </template>
 
         <template v-else-if="column.key === 'profitPerHour'">
           <span
-            class="text-base font-bold"
+            class="font-bold"
             :style="{ color: sortKey === 'profit' ? getHighlightColor('profit') : 'var(--ant-color-text)' }"
-          >{{ record.profitPerHour ?? '-' }}</span>
+            >{{ record.profitPerHour ?? '-' }}</span
+          >
         </template>
 
         <template v-else-if="column.key === 'normalFertilizerProfitPerHour'">
           <span
-            class="text-base font-bold"
+            class="font-bold"
             :style="{
-              color: sortKey === 'fert_profit' ? getHighlightColor('fert_profit') : 'var(--ant-color-text)',
+              color: sortKey === 'fert_profit' ? getHighlightColor('fert_profit') : 'var(--ant-color-text)'
             }"
-          >{{ record.normalFertilizerProfitPerHour ?? '-' }}</span>
+            >{{ record.normalFertilizerProfitPerHour ?? '-' }}</span
+          >
         </template>
       </template>
 
       <template #emptyText>
         <div class="flex flex-col items-center gap-2 py-8">
           <div class="i-twemoji-bar-chart text-3xl opacity-30" />
-          <span class="text-base a-color-text-tertiary">{{ searchQuery ? '未找到匹配的作物' : '暂无数据' }}</span>
+          <span class="a-color-text-tertiary">{{ searchQuery ? '未找到匹配的作物' : '暂无数据' }}</span>
         </div>
       </template>
     </a-table>
@@ -162,7 +167,7 @@ function getHighlightColor(key: string): string {
       v-if="filteredList.length"
       class="flex items-center justify-between border-t border-t-solid px-4 py-3 a-border-t-border-sec"
     >
-      <span class="text-base a-color-text-tertiary">共 {{ filteredList.length }} 种作物</span>
+      <span class="a-color-text-tertiary">共 {{ filteredList.length }} 种作物</span>
       <a-pagination
         v-model:current="currentPage"
         v-model:page-size="pageSize"

@@ -2,15 +2,14 @@
 defineProps<{
   displayName: string
   level: number
-  levelProgress?: { current: number, needed: number } | null
+  levelProgress?: { current: number; needed: number } | null
   expRate: string
   timeToLevel: string
   connected: boolean
 }>()
 
-function getExpPercent(p: { current: number, needed: number } | null | undefined): number {
-  if (!p || !p.needed)
-    return 0
+function getExpPercent(p: { current: number; needed: number } | null | undefined): number {
+  if (!p || !p.needed) return 0
   return Math.min(100, Math.max(0, (p.current / p.needed) * 100))
 }
 </script>
@@ -21,23 +20,18 @@ function getExpPercent(p: { current: number, needed: number } | null | undefined
       <div class="flex items-center gap-4">
         <div class="i-twemoji-farmer text-3xl" />
         <div class="min-w-0">
-          <div class="truncate text-base font-bold leading-snug a-color-text" :title="displayName">
+          <div class="truncate font-bold leading-snug a-color-text" :title="displayName">
             {{ displayName }}
           </div>
-          <div class="text-base a-color-text-secondary">
-            Lv.{{ level || 0 }}
-          </div>
+          <div class="a-color-text-secondary">Lv.{{ level || 0 }}</div>
         </div>
       </div>
-      <a-badge
-        :status="connected ? 'processing' : 'error'"
-        :text="connected ? '在线' : '离线'"
-      />
+      <a-badge :status="connected ? 'processing' : 'error'" :text="connected ? '在线' : '离线'" />
     </div>
     <div class="mt-4">
-      <div class="mb-1 flex items-center justify-between text-base a-color-text-secondary">
+      <div class="mb-1 flex items-center justify-between a-color-text-secondary">
         <span class="flex items-center gap-1">
-          <div class="i-twemoji-glowing-star text-base" />
+          <div class="i-twemoji-glowing-star" />
           经验
         </span>
         <span>{{ levelProgress?.current || 0 }} / {{ levelProgress?.needed || '?' }}</span>
